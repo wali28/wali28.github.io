@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Waleed Imran — strategy, product, design</title>
+<meta name="description" content="Second-year ESCP student shipping consulting decks, brand systems, landing pages, and full-stack web apps. One person, one voice." />
+<meta property="og:title" content="Waleed Imran" />
+<meta property="og:description" content="Strategy, product, and design — done from one desk. Available remote worldwide." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fraunces:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#0a0a0d;
+  --bg-2:#12121a;
+  --panel:rgba(255,255,255,0.04);
+  --ink:#f5f5f7;
+  --ink-2:#b8b8c0;
+  --ink-3:#7a7a85;
+  --line:rgba(255,255,255,0.08);
+  --accent:#d9b07a;
+  --blue:#7EC8E3;
+  --orange:#FF9F43;
+  --green:#6BC67E;
+  --ease:cubic-bezier(0.22,1,0.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:var(--bg);color:var(--ink);font-family:"Inter",-apple-system,system-ui,sans-serif;-webkit-font-smoothing:antialiased;font-feature-settings:"ss01","cv11"}
+body{overflow-x:hidden;line-height:1.5}
+::selection{background:var(--accent);color:#000}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+
+.mesh{position:fixed;inset:0;z-index:0;opacity:0.35;pointer-events:none;filter:blur(80px)}
+.mesh::before,.mesh::after{content:"";position:absolute;border-radius:50%}
+.mesh::before{width:55vw;height:55vw;top:-15vw;right:-15vw;background:#1f5f7f;animation:drift1 26s ease-in-out infinite alternate}
+.mesh::after{width:45vw;height:45vw;bottom:-15vw;left:-15vw;background:#d9b07a;opacity:0.5;animation:drift2 22s ease-in-out infinite alternate}
+@keyframes drift1{to{transform:translate(10vw,12vw) scale(1.1)}}
+@keyframes drift2{to{transform:translate(8vw,-10vw) scale(0.9)}}
+.grain{position:fixed;inset:0;pointer-events:none;z-index:1;opacity:0.05;mix-blend-mode:overlay;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3"/></filter><rect width="220" height="220" filter="url(%23n)"/></svg>')}
+
+.prog{position:fixed;top:0;left:0;height:1px;background:var(--accent);z-index:100;width:0;transition:width 0.1s linear}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:50;padding:22px 48px;display:flex;justify-content:space-between;align-items:center;transition:backdrop-filter 0.3s,background 0.3s,border-color 0.3s;border-bottom:1px solid transparent}
+nav.s{background:rgba(10,10,13,0.7);backdrop-filter:blur(20px) saturate(1.3);border-bottom-color:var(--line)}
+.logo{font-family:"Fraunces";font-weight:500;font-size:22px;letter-spacing:-0.01em;display:flex;align-items:center;gap:10px}
+.logo-mark{width:14px;height:14px;border-radius:50%;background:var(--accent);box-shadow:0 0 14px rgba(217,176,122,0.5)}
+.nav-links{display:flex;gap:32px;font-size:13px;color:var(--ink-2);font-weight:500}
+.nav-links a{position:relative;transition:color 0.2s}
+.nav-links a:hover{color:var(--ink)}
+.nav-cta{background:var(--ink);color:var(--bg);padding:9px 18px;border-radius:100px;font-size:13px;font-weight:600;border:0;transition:transform 0.3s var(--ease),background 0.2s}
+.nav-cta:hover{transform:scale(1.04);background:var(--accent);color:#000}
+@media(max-width:720px){.nav-links{display:none}nav{padding:16px 22px}}
+
+.hero{position:relative;z-index:5;min-height:100vh;display:grid;place-items:center;padding:120px 40px 80px}
+.hero-inner{max-width:980px;text-align:center}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;padding:7px 16px;border:1px solid var(--line);background:rgba(255,255,255,0.03);border-radius:100px;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-2)}
+.eyebrow .dot{width:6px;height:6px;border-radius:3px;background:#6BC67E;box-shadow:0 0 10px rgba(107,198,126,0.6)}
+h1.big{font-family:"Fraunces";font-weight:400;font-size:clamp(52px,9vw,124px);line-height:0.95;letter-spacing:-0.035em;margin:24px 0 0;font-style:italic}
+h1.big .sans{font-family:"Inter";font-style:normal;font-weight:700;letter-spacing:-0.045em}
+h1.big .word{display:inline-block;opacity:0;transform:translateY(40px);filter:blur(8px);animation:reveal 1.2s var(--ease) forwards;animation-delay:calc(0.3s + var(--i,0)*0.1s)}
+@keyframes reveal{to{opacity:1;transform:translateY(0);filter:blur(0)}}
+.hero-sub{margin-top:28px;font-size:clamp(16px,1.6vw,19px);color:var(--ink-2);max-width:620px;margin-left:auto;margin-right:auto;line-height:1.6;opacity:0;animation:fadeUp 1s 1.4s var(--ease) forwards}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.ctas{margin-top:36px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;opacity:0;animation:fadeUp 1s 1.7s var(--ease) forwards}
+.btn{padding:14px 26px;border-radius:100px;font-size:14px;font-weight:600;border:1px solid var(--line);background:rgba(255,255,255,0.04);color:var(--ink);transition:all 0.3s var(--ease)}
+.btn:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);transform:translateY(-2px)}
+.btn.primary{background:var(--accent);color:#000;border-color:var(--accent);box-shadow:0 12px 28px rgba(217,176,122,0.3)}
+.btn.primary:hover{transform:translateY(-2px);box-shadow:0 16px 36px rgba(217,176,122,0.45)}
+.hero-meta{margin-top:48px;display:flex;gap:24px;justify-content:center;flex-wrap:wrap;font-size:12px;color:var(--ink-3);letter-spacing:0.12em;text-transform:uppercase;font-weight:500;opacity:0;animation:fadeUp 1s 2s var(--ease) forwards}
+.hero-meta span i{color:var(--accent);font-style:normal;margin-right:5px}
+
+section.block{position:relative;z-index:5;padding:100px 40px}
+.block-inner{max-width:1200px;margin:0 auto}
+.block-head{margin-bottom:60px;max-width:720px}
+.block-num{font-family:"Fraunces";font-style:italic;font-size:13px;color:var(--accent);letter-spacing:0.2em;font-weight:500;display:inline-block;margin-bottom:14px;text-transform:uppercase}
+.block-head h2{font-family:"Fraunces";font-weight:400;font-size:clamp(40px,6vw,72px);line-height:0.98;letter-spacing:-0.03em;color:var(--ink);margin-bottom:18px}
+.block-head h2 em{font-style:italic}
+.block-head h2 .sans{font-family:"Inter";font-weight:600;font-style:normal;letter-spacing:-0.04em}
+.block-head p{font-size:17px;color:var(--ink-2);line-height:1.6;max-width:580px}
+
+.svc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.svc{background:var(--panel);backdrop-filter:blur(20px);border:1px solid var(--line);border-radius:20px;padding:28px;position:relative;overflow:hidden;transition:transform 0.4s var(--ease),border-color 0.3s,background 0.3s}
+.svc::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(217,176,122,0.4),transparent);opacity:0;transition:opacity 0.3s}
+.svc:hover{transform:translateY(-4px);border-color:rgba(217,176,122,0.3);background:rgba(255,255,255,0.06)}
+.svc:hover::before{opacity:1}
+.svc-num{font-family:"Fraunces";font-style:italic;font-size:11px;color:var(--accent);letter-spacing:0.18em;text-transform:uppercase;font-weight:500}
+.svc h3{font-size:22px;font-weight:600;letter-spacing:-0.015em;margin-top:8px;margin-bottom:10px;line-height:1.15}
+.svc p{font-size:14px;color:var(--ink-2);line-height:1.6;margin-bottom:18px}
+.svc-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+.svc-tag{font-size:11px;padding:4px 10px;background:rgba(255,255,255,0.05);border:1px solid var(--line);border-radius:100px;color:var(--ink-2)}
+.svc-rate{font-size:12px;color:var(--ink-3);letter-spacing:0.05em;padding-top:14px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.svc-rate b{color:var(--accent);font-weight:600;font-family:"Fraunces";font-style:italic}
+
+.dashboard{background:rgba(0,0,0,0.25)}
+.dash-controls{margin-bottom:28px}
+.dash-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:14px}
+.dash-count{font-family:"Fraunces";font-style:italic;font-size:14px;color:var(--ink-2);font-weight:500;letter-spacing:0.02em}
+.dash-count b{color:var(--accent);font-size:20px;font-weight:500;margin-right:2px;font-family:"Fraunces";font-style:italic}
+.dash-search{position:relative;min-width:260px;flex:1;max-width:420px}
+.dash-search input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--line);border-radius:100px;padding:11px 18px 11px 40px;color:var(--ink);font-family:inherit;font-size:13px;outline:0;transition:border-color 0.25s,background 0.25s}
+.dash-search input::placeholder{color:var(--ink-3)}
+.dash-search input:focus{border-color:var(--accent);background:rgba(255,255,255,0.08)}
+.dash-search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--ink-3);pointer-events:none}
+.dash-pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{background:rgba(255,255,255,0.04);border:1px solid var(--line);color:var(--ink-2);padding:8px 14px;border-radius:100px;font-size:12.5px;font-weight:500;font-family:inherit;cursor:pointer;transition:all 0.25s var(--ease);display:inline-flex;align-items:center;gap:7px}
+.pill:hover{border-color:rgba(255,255,255,0.18);color:var(--ink)}
+.pill.on{background:var(--accent);color:#0a0a0d;border-color:var(--accent)}
+.pill span{font-size:10px;padding:2px 7px;background:rgba(0,0,0,0.2);border-radius:100px;font-weight:600}
+.pill.on span{background:rgba(0,0,0,0.3);color:#0a0a0d}
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.skill-card{background:var(--panel);backdrop-filter:blur(20px);border:1px solid var(--line);border-radius:16px;padding:20px;position:relative;overflow:hidden;transition:transform 0.3s var(--ease),border-color 0.3s,opacity 0.3s,background 0.3s}
+.skill-card.hide{display:none}
+.skill-card:hover{transform:translateY(-2px);border-color:rgba(217,176,122,0.3);background:rgba(255,255,255,0.06)}
+.skill-card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:var(--cat-color,var(--accent));opacity:0.9}
+.skill-card::after{content:"";position:absolute;top:-40%;right:-20%;width:140px;height:140px;border-radius:50%;background:var(--cat-color);opacity:0.06;pointer-events:none;filter:blur(20px)}
+.skill-cat{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;font-weight:600;color:var(--cat-color);margin-bottom:10px;position:relative;z-index:1}
+.skill-name{font-family:"JetBrains Mono",monospace;font-size:13px;color:var(--ink);margin-bottom:8px;font-weight:500;letter-spacing:-0.01em;position:relative;z-index:1}
+.skill-desc{font-size:12.5px;color:var(--ink-2);line-height:1.5;margin-bottom:14px;min-height:56px;position:relative;z-index:1}
+.skill-rate{font-size:11px;color:var(--ink-3);letter-spacing:0.04em;padding-top:12px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1}
+.skill-rate b{color:var(--ink);font-family:"Fraunces";font-style:italic;font-weight:500}
+.dash-empty{text-align:center;padding:60px 20px;color:var(--ink-3);font-style:italic;display:none;font-family:"Fraunces"}
+.dash-empty.show{display:block}
+
+.cat-design{--cat-color:#ec4899}
+.cat-strategy{--cat-color:#d9b07a}
+.cat-engineering{--cat-color:#7EC8E3}
+.cat-content{--cat-color:#8a5cf6}
+.cat-growth{--cat-color:#FF9F43}
+.cat-ops{--cat-color:#06b6d4}
+.cat-specialty{--cat-color:#6BC67E}
+
+.work-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:20px}
+.work{background:var(--panel);border:1px solid var(--line);border-radius:20px;overflow:hidden;transition:transform 0.4s var(--ease),border-color 0.3s}
+.work:hover{transform:translateY(-4px);border-color:rgba(217,176,122,0.3)}
+.work-visual{aspect-ratio:16/10;position:relative;overflow:hidden;display:grid;place-items:center;font-family:"Fraunces";font-style:italic;font-size:42px;color:rgba(255,255,255,0.15);letter-spacing:-0.02em}
+.work-meta{padding:22px 26px 26px}
+.work-tag{font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between}
+.work-tag span{color:var(--ink-3);font-weight:400;letter-spacing:0.05em;text-transform:none}
+.work h3{font-size:20px;font-weight:600;letter-spacing:-0.015em;margin-bottom:6px}
+.work p{font-size:13.5px;color:var(--ink-2);line-height:1.55}
+.work.leva .work-visual{background:linear-gradient(135deg,#FFF8F1 0%,#FAEEDC 100%);color:#4A9DBF}
+.work.leva .work-visual::before{content:"";position:absolute;top:-30%;right:-15%;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,#7EC8E3 0%,transparent 65%);opacity:0.5}
+.work.leva .work-visual::after{content:"Leva";position:relative;z-index:1;font-size:64px;color:#2E2E2E;font-weight:500}
+.work.neom .work-visual{background:linear-gradient(135deg,#1c1c25 0%,#34344a 100%);color:rgba(255,255,255,0.3)}
+.work.neom .work-visual::after{content:"NEOM";font-family:"Inter";font-weight:700;font-style:normal;letter-spacing:0.08em;color:rgba(255,255,255,0.7);font-size:36px}
+.work.fabrick .work-visual{background:linear-gradient(135deg,#0a1c2f 0%,#15355a 100%)}
+.work.fabrick .work-visual::after{content:"Fintech";color:#7EC8E3}
+.work.jarvis .work-visual{background:linear-gradient(135deg,#0e0e14 0%,#2a1f3d 100%)}
+.work.jarvis .work-visual::after{content:"J.";color:#d9b07a;font-size:120px}
+.work.hhl .work-visual{background:linear-gradient(135deg,#191920 0%,#2a2a35 100%);color:#555}
+.work.hhl .work-visual::after{content:"< / >";font-family:monospace;color:#d9b07a;font-size:48px;font-style:normal}
+.work.joyn .work-visual{background:linear-gradient(135deg,#1f4d3a 0%,#0f2a20 100%)}
+.work.joyn .work-visual::after{content:"JOYN";color:#6BC67E;font-family:"Inter";font-weight:700;font-style:normal}
+
+.about-grid{display:grid;grid-template-columns:1fr 420px;gap:80px;align-items:start}
+@media(max-width:900px){.about-grid{grid-template-columns:1fr;gap:40px}}
+.about-copy h3{font-family:"Fraunces";font-weight:400;font-style:italic;font-size:32px;line-height:1.2;letter-spacing:-0.015em;margin-bottom:24px;color:var(--ink)}
+.about-copy p{font-size:16px;color:var(--ink-2);line-height:1.65;margin-bottom:18px}
+.about-copy p b{color:var(--ink);font-weight:600}
+.about-facts{display:flex;flex-direction:column;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:28px}
+.fact{padding:14px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:20px;align-items:baseline}
+.fact:last-child{border-bottom:0;padding-bottom:0}
+.fact .l{font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-3);font-weight:600;flex-shrink:0}
+.fact .r{font-size:14px;color:var(--ink);text-align:right;font-weight:500}
+
+.process-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media(max-width:860px){.process-steps{grid-template-columns:1fr 1fr}}
+.step{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;position:relative}
+.step-num{font-family:"Fraunces";font-style:italic;font-size:44px;color:var(--accent);line-height:1;margin-bottom:14px;font-weight:300}
+.step h4{font-size:16px;font-weight:600;letter-spacing:-0.01em;margin-bottom:6px}
+.step p{font-size:13px;color:var(--ink-2);line-height:1.55}
+
+.book{position:relative;z-index:5;padding:120px 40px;text-align:center}
+.book-inner{max-width:800px;margin:0 auto;background:linear-gradient(160deg,rgba(217,176,122,0.08) 0%,rgba(31,95,127,0.06) 100%);border:1px solid var(--line);border-radius:32px;padding:80px 40px;position:relative;overflow:hidden}
+.book-inner::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(217,176,122,0.12) 0%,transparent 60%);pointer-events:none}
+.book h2{font-family:"Fraunces";font-weight:400;font-size:clamp(40px,6vw,80px);line-height:0.96;letter-spacing:-0.03em;margin-bottom:20px;font-style:italic;position:relative;z-index:1}
+.book h2 .sans{font-family:"Inter";font-weight:700;font-style:normal;letter-spacing:-0.04em}
+.book p{font-size:17px;color:var(--ink-2);margin-bottom:36px;max-width:520px;margin-left:auto;margin-right:auto;line-height:1.6;position:relative;z-index:1}
+.book-form{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:10px;text-align:left;position:relative;z-index:1}
+.book-form label{font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:4px}
+.book-form input,.book-form textarea,.book-form select{background:rgba(255,255,255,0.04);border:1px solid var(--line);color:var(--ink);padding:12px 14px;border-radius:12px;font-family:inherit;font-size:14px;outline:0;transition:border-color 0.25s,background 0.25s;width:100%}
+.book-form input:focus,.book-form textarea:focus,.book-form select:focus{border-color:var(--accent);background:rgba(255,255,255,0.06)}
+.book-form .field{display:flex;flex-direction:column}
+.book-form .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:560px){.book-form .row{grid-template-columns:1fr}}
+.book-form textarea{min-height:110px;resize:vertical;font-family:inherit;line-height:1.5}
+.book-submit{background:var(--accent);color:#000;border:0;padding:16px;border-radius:12px;font-size:15px;font-weight:600;letter-spacing:-0.01em;cursor:pointer;margin-top:8px;transition:transform 0.3s var(--ease),box-shadow 0.3s,opacity 0.2s;box-shadow:0 10px 24px rgba(217,176,122,0.25)}
+.book-submit:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 14px 32px rgba(217,176,122,0.4)}
+.book-submit:disabled{opacity:0.6;cursor:wait}
+.book-alts{display:flex;gap:20px;justify-content:center;margin-top:24px;font-size:13px;color:var(--ink-3);flex-wrap:wrap;position:relative;z-index:1}
+.book-alts a{color:var(--ink-2);border-bottom:1px dashed rgba(255,255,255,0.2);padding-bottom:1px;transition:color 0.2s,border-color 0.2s}
+.book-alts a:hover{color:var(--accent);border-color:var(--accent)}
+.book-toast{margin-top:18px;padding:14px 18px;border-radius:14px;font-size:14px;font-weight:500;display:none;position:relative;z-index:1}
+.book-toast.ok{display:block;background:rgba(107,198,126,0.15);border:1px solid rgba(107,198,126,0.4);color:#b8e8c1}
+.book-toast.err{display:block;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:#f7b5b5}
+
+footer{position:relative;z-index:5;padding:60px 40px 40px;border-top:1px solid var(--line);color:var(--ink-3);font-size:13px}
+.foot-inner{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px;align-items:flex-end}
+.foot-brand{font-family:"Fraunces";font-style:italic;font-size:20px;color:var(--ink);font-weight:500}
+.foot-links{display:flex;gap:20px}
+.foot-links a:hover{color:var(--accent)}
+.foot-sub{margin-top:40px;font-size:11px;color:var(--ink-3);letter-spacing:0.1em;text-align:center;opacity:0.6}
+</style>
+</head>
+<body>
+
+<div class="mesh"></div>
+<div class="grain"></div>
+<div class="prog" id="prog"></div>
+
+<nav id="nav">
+  <div class="logo"><div class="logo-mark"></div>Waleed Imran</div>
+  <div class="nav-links">
+    <a href="#services">Services</a>
+    <a href="#dashboard">Dashboard</a>
+    <a href="#work">Work</a>
+    <a href="#about">About</a>
+    <a href="#book">Book</a>
+  </div>
+  <button class="nav-cta" onclick="document.getElementById('book').scrollIntoView({behavior:'smooth'})">Book a call →</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow"><span class="dot"></span>Taking projects — Q2 & Q3 2026</div>
+    <h1 class="big">
+      <span class="word sans" style="--i:0">strategy,</span>
+      <span class="word" style="--i:1">product,</span><br>
+      <span class="word" style="--i:2">&amp;</span>
+      <span class="word sans" style="--i:3">design.</span>
+    </h1>
+    <p class="hero-sub">I'm Waleed. Second-year student at ESCP Business School in Turin who spends most weeknights making things. Decks, brand systems, landing pages, full-stack apps — I've probably shipped something like what you need. If I haven't, I'll say so up front. No agency overhead, no discovery call about the discovery call.</p>
+    <div class="ctas">
+      <button class="btn primary" onclick="document.getElementById('book').scrollIntoView({behavior:'smooth'})">Book a 30-min intro →</button>
+      <button class="btn" onclick="document.getElementById('work').scrollIntoView({behavior:'smooth'})">See the work</button>
+    </div>
+    <div class="hero-meta">
+      <span><i>◆</i>ESCP Business School</span>
+      <span><i>◆</i>Turin · Paris · Berlin</span>
+      <span><i>◆</i>Remote worldwide</span>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="block" id="services">
+  <div class="block-inner">
+    <div class="block-head">
+      <span class="block-num">01 — What I actually do</span>
+      <h2>Six things I'm good at. <em>For now.</em></h2>
+      <p>These are the things I've shipped enough times to be useful at. I keep adding to the list — if what you need is adjacent, ask. I'd rather tell you honestly than pretend.</p>
+    </div>
+    <div class="svc-grid">
+
+      <div class="svc">
+        <div class="svc-num">01</div>
+        <h3>Strategy memos &amp; decks</h3>
+        <p>Decks and memos built the way consultants actually build them — Pyramid Principle, action titles, numbers that survive scrutiny. I spent last summer at Infosys Consulting in Paris on a 182-slide Target Operating Model for NEOM under Saudi Vision 2030. Same craft goes into whatever you need to land in a board room.</p>
+        <div class="svc-tags"><span class="svc-tag">PowerPoint</span><span class="svc-tag">Pyramid writing</span><span class="svc-tag">Action titles</span></div>
+        <div class="svc-rate">Project work <b>€400 – €3k</b></div>
+      </div>
+
+      <div class="svc">
+        <div class="svc-num">02</div>
+        <h3>Market &amp; competitive research</h3>
+        <p>Desk research, expert and customer interviews, TAM built bottom-up, competitor maps — into something short enough that an exec will actually read it. Works best when you have a specific decision to make this quarter, not an abstract "learn the market" brief.</p>
+        <div class="svc-tags"><span class="svc-tag">Desk + primary</span><span class="svc-tag">Competitor maps</span><span class="svc-tag">Bottom-up TAM</span></div>
+        <div class="svc-rate">Per report <b>€500 – €4k</b></div>
+      </div>
+
+      <div class="svc">
+        <div class="svc-num">03</div>
+        <h3>Brand &amp; product design</h3>
+        <p>Full brand systems, product UX, landing pages. Tokens, type, motion — the whole stack. I'm running this for Leva right now, my own student productivity app. Which means I'm spending my own money on design decisions adjacent to yours. Raises the quality bar by accident.</p>
+        <div class="svc-tags"><span class="svc-tag">Figma</span><span class="svc-tag">Design tokens</span><span class="svc-tag">Motion</span></div>
+        <div class="svc-rate">From <b>€600 – €6k</b></div>
+      </div>
+
+      <div class="svc">
+        <div class="svc-num">04</div>
+        <h3>Full-stack web builds</h3>
+        <p>Next.js + TypeScript + Tailwind + Supabase, shipped on Vercel. Auth, payments, dashboards — the boring stuff that makes a site an actual product. I keep the repo clean and hand it over typed strictly, so whoever's next can actually work on it.</p>
+        <div class="svc-tags"><span class="svc-tag">Next.js</span><span class="svc-tag">Supabase</span><span class="svc-tag">Stripe</span></div>
+        <div class="svc-rate">From <b>€1k – €8k</b></div>
+      </div>
+
+      <div class="svc">
+        <div class="svc-num">05</div>
+        <h3>AI automation systems</h3>
+        <p>I built Jarvis — a Telegram AI assistant running on OpenAI, cron, and task orchestration. It actually reminds me what to do every morning. I build similar things for people who want a bot that works, not an "agent" that demos well and breaks in week two.</p>
+        <div class="svc-tags"><span class="svc-tag">OpenAI</span><span class="svc-tag">Telegram</span><span class="svc-tag">Cron</span></div>
+        <div class="svc-rate">From <b>€500 – €4k</b></div>
+      </div>
+
+      <div class="svc">
+        <div class="svc-num">06</div>
+        <h3>Pitch decks &amp; fundraising</h3>
+        <p>Narrative, design, financial back-up — one deck you can send on your phone. For founders raising seed/Series A, or anyone asking a board for money. Built on consulting-slide grammar, so every title is a sentence that earns its space.</p>
+        <div class="svc-tags"><span class="svc-tag">Investor-grade</span><span class="svc-tag">Narrative</span><span class="svc-tag">Design</span></div>
+        <div class="svc-rate">From <b>€800 – €5k</b></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- DASHBOARD — 49 skill capability matrix -->
+<section class="block dashboard" id="dashboard">
+  <div class="block-inner">
+    <div class="block-head">
+      <span class="block-num">02 — The dashboard</span>
+      <h2>Every skill,<br><em>on one screen.</em></h2>
+      <p><b>49 things</b> across design, strategy, engineering, content, growth, operations, and specialty niches. Filter by category, search by keyword or tool — every card is a service I can actually deliver, with an honest price range attached.</p>
+    </div>
+    <div class="dash-controls">
+      <div class="dash-top">
+        <div class="dash-count"><b id="dashCount">49</b> showing</div>
+        <div class="dash-search">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input id="dashSearch" placeholder="Search skills, tools, keywords…" autocomplete="off" />
+        </div>
+      </div>
+      <div class="dash-pills" id="dashPills"></div>
+    </div>
+    <div class="dash-grid" id="dashGrid"></div>
+    <div class="dash-empty" id="dashEmpty">Nothing matches. Try a different keyword.</div>
+  </div>
+</section>
+
+<!-- WORK -->
+<section class="block" id="work">
+  <div class="block-inner">
+    <div class="block-head">
+      <span class="block-num">03 — Things I'm proud of</span>
+      <h2>A few things<br>I've <em>actually shipped.</em></h2>
+      <p>From consulting work to stuff I built on my own. Every one of these taught me something that shows up in the next brief.</p>
+    </div>
+    <div class="work-grid">
+
+      <div class="work leva">
+        <div class="work-visual"></div>
+        <div class="work-meta">
+          <div class="work-tag"><span>FOUNDER · ONGOING</span><span>2026 —</span></div>
+          <h3>Leva — student productivity app</h3>
+          <p>My own thing. A planner for European business-school students that actually does the planning for them. Brand, product, landing, GTM — all me. Targeting ESCP, Bocconi, HEC, IE, RSM, ESSEC.</p>
+        </div>
+      </div>
+
+      <div class="work neom">
+        <div class="work-visual"></div>
+        <div class="work-meta">
+          <div class="work-tag"><span>CONSULTING · INTERN</span><span>Infosys, Paris</span></div>
+          <h3>NEOM Shared Services · TOM</h3>
+          <p>Three months at Infosys Consulting in Paris as an Associate Analyst intern. Worked on a 182-slide Target Operating Model for NEOM under Saudi Vision 2030 — strategy, ops structuring, partner model, workforce planning.</p>
+        </div>
+      </div>
+
+      <div class="work fabrick">
+        <div class="work-visual"></div>
+        <div class="work-meta">
+          <div class="work-tag"><span>COLLECTIVE PROJECT · ONGOING</span><span>ESCP × Fabrick</span></div>
+          <h3>Fabrick Fintech District</h3>
+          <p>ESCP partnered with Fabrick, Italy's leading fintech hub. Building a Power BI innovation map of European corporates, fintechs, and students. Live collective-project engagement.</p>
+        </div>
+      </div>
+
+      <div class="work jarvis">
+        <div class="work-visual"></div>
+        <div class="work-meta">
+          <div class="work-tag"><span>INDEPENDENT · DEPLOYED</span><span>Solo</span></div>
+          <h3>Jarvis — AI productivity assistant</h3>
+          <p>Telegram AI assistant I built and deployed for myself. OpenAI + cron + task orchestration. Reminds me what to do every morning — useful enough that I didn't stop using it after week one, which is the actual bar.</p>
+        </div>
+      </div>
+
+      <div class="work hhl">
+        <div class="work-visual"></div>
+        <div class="work-meta">
+          <div class="work-tag"><span>WEB BUILD · ONGOING</span><span>Next.js · Supabase</span></div>
+          <h3>HHL — full-stack build</h3>
+          <p>Production web app on the modern full-stack: Next.js 14 App Router, TypeScript, Tailwind, Supabase auth + Postgres, Vercel. Ongoing solo build.</p>
+        </div>
+      </div>
+
+      <div class="work joyn">
+        <div class="work-visual"></div>
+        <div class="work-meta">
+          <div class="work-tag"><span>STRATEGY PROJECT · ESCP</span><span>Turin</span></div>
+          <h3>JOYN — market entry strategy</h3>
+          <p>ESCP strategy project in Turin. End-to-end market entry for a digital wellness product — consumer insight → positioning → pricing → distribution recommendations.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section class="block">
+  <div class="block-inner">
+    <div class="block-head">
+      <span class="block-num">04 — How it works</span>
+      <h2>Four steps.<br><em>No weird stuff.</em></h2>
+      <p>First message to handover. Most projects finish in 1–3 weeks.</p>
+    </div>
+    <div class="process-steps">
+      <div class="step"><div class="step-num">01</div><h4>Intro call</h4><p>30 minutes. Tell me the problem. I'll tell you honestly if I'm the right person — and if not, who probably is.</p></div>
+      <div class="step"><div class="step-num">02</div><h4>Scope &amp; quote</h4><p>Fixed price, fixed deliverable, fixed timeline. Proposal back within 48 hours. No hourly games. If scope shifts, we re-quote explicitly.</p></div>
+      <div class="step"><div class="step-num">03</div><h4>Build</h4><p>Async by default. Shared doc, progress notes every day, two check-in calls per week. You see work evolving, not silence then a big reveal.</p></div>
+      <div class="step"><div class="step-num">04</div><h4>Handover</h4><p>Final files, a Loom walkthrough explaining everything, and one revision round included. Then it's yours.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="block" id="about">
+  <div class="block-inner">
+    <div class="block-head">
+      <span class="block-num">05 — Who's actually on the other end</span>
+      <h2>Me. <em>For real.</em></h2>
+    </div>
+    <div class="about-grid">
+      <div class="about-copy">
+        <h3>"I ship one file, one voice — the way the old studios used to."</h3>
+        <p>I'm Waleed. Second-year at ESCP Business School, splitting the year between <b>Turin, Paris, and Berlin</b>. Grew up between Lahore and Europe, speak five languages well enough to work in three, and have spent the last two years learning to ship across very different surfaces — consulting decks, brand systems, working code.</p>
+        <p>Last summer I spent three months inside <b>Infosys Consulting</b> in Paris on a 182-slide Target Operating Model for NEOM under Saudi Vision 2030. That experience — Pyramid Principle, action titles, actually reasoning about operating models — is the craft I bring to every client.</p>
+        <p>Alongside school I'm building <b>Leva</b>, a planner for European business-school students. It's where I put every lesson about brand, product, and narrative into practice on my own budget. Nothing keeps you honest like spending your own money.</p>
+        <p>I'm not pretending to be more senior than I am. I'm a student who ships real work. I'm curious, I'm learning fast, and I'm specifically good at the things listed above. If that overlaps with what you're trying to do — I'd love to hear about it.</p>
+      </div>
+      <div class="about-facts">
+        <div class="fact"><div class="l">Base</div><div class="r">Turin, Italy</div></div>
+        <div class="fact"><div class="l">School</div><div class="r">ESCP Business School</div></div>
+        <div class="fact"><div class="l">Program</div><div class="r">BSc Management · tri-campus</div></div>
+        <div class="fact"><div class="l">Year</div><div class="r">2 of 3</div></div>
+        <div class="fact"><div class="l">Languages</div><div class="r">English, Urdu, Hindi, Punjabi, Italian A1, German A1</div></div>
+        <div class="fact"><div class="l">Last role</div><div class="r">Analyst intern, Infosys Consulting</div></div>
+        <div class="fact"><div class="l">Current</div><div class="r">Leva (founder)</div></div>
+        <div class="fact"><div class="l">Availability</div><div class="r">Part-time · Q2 &amp; Q3 2026</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BOOK -->
+<section class="book" id="book">
+  <div class="book-inner">
+    <h2>Let's talk about <em>your project.</em></h2>
+    <p>Drop a rough shape below. I reply within 24 hours — usually with a short note on whether it's a fit and what the sensible next step looks like. No sales funnel.</p>
+    <form class="book-form" id="bookForm">
+      <div class="row">
+        <div class="field"><label>Your name</label><input name="name" required placeholder="Alex" /></div>
+        <div class="field"><label>Email</label><input name="email" type="email" required placeholder="alex@company.com" /></div>
+      </div>
+      <div class="field"><label>Type of work</label>
+        <select name="service">
+          <option>Strategy memo / deck</option>
+          <option>Market &amp; competitive research</option>
+          <option>Brand &amp; product design</option>
+          <option>Full-stack web build</option>
+          <option>AI automation system</option>
+          <option>Pitch deck / fundraising</option>
+          <option>Not sure yet — let's talk</option>
+        </select>
+      </div>
+      <div class="field"><label>Budget range</label>
+        <select name="budget">
+          <option>Under €1,000</option>
+          <option>€1,000 – €3,000</option>
+          <option>€3,000 – €8,000</option>
+          <option>€8,000 +</option>
+          <option>Not sure — I need a steer</option>
+        </select>
+      </div>
+      <div class="field"><label>Tell me about the project</label><textarea name="brief" required placeholder="Company / product, what you're trying to ship, when it's due, anything that would help me understand…"></textarea></div>
+      <button class="book-submit" id="bookSubmit" type="submit">Send it →</button>
+      <div class="book-toast" id="bookToast"></div>
+    </form>
+    <div class="book-alts">
+      <span>Or reach me directly:</span>
+      <a href="mailto:waleed.imran@edu.escp.eu">waleed.imran@edu.escp.eu</a>
+      <a href="https://wa.me/33766804456">WhatsApp +33 7 66 80 44 56</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-inner">
+    <div class="foot-brand">Waleed Imran · 2026</div>
+    <div class="foot-links">
+      <a href="mailto:waleed.imran@edu.escp.eu">Email</a>
+      <a href="https://wa.me/33766804456">WhatsApp</a>
+      <a href="#work">Work</a>
+      <a href="#book">Book</a>
+    </div>
+  </div>
+  <div class="foot-sub">Based in Turin · ESCP Business School · Available remote worldwide</div>
+</footer>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const SUPABASE_URL = 'https://bniudmwlpaqqpthsgppv.supabase.co';
+const SUPABASE_ANON = 'sb_publishable_Z3bK3kFntXPjfqYxDD4D5A_OX2bXXIb';
+const supa = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// ─────────── nav + progress ───────────
+const nav=document.getElementById('nav'),prog=document.getElementById('prog');
+addEventListener('scroll',()=>{
+  const y=scrollY,m=document.body.scrollHeight-innerHeight;
+  nav.classList.toggle('s',y>40);
+  prog.style.width=(y/m*100)+'%';
+});
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth'});}
+  });
+});
+const io=new IntersectionObserver(entries=>entries.forEach(e=>{
+  if(e.isIntersecting){e.target.style.opacity='1';e.target.style.transform='translateY(0)';io.unobserve(e.target);}
+}),{threshold:0.1});
+document.querySelectorAll('.svc, .work, .step, .fact').forEach((el,i)=>{
+  el.style.opacity='0';
+  el.style.transform='translateY(24px)';
+  el.style.transition=`opacity 0.7s ${0.05*i}s cubic-bezier(0.22,1,0.36,1),transform 0.7s ${0.05*i}s cubic-bezier(0.22,1,0.36,1)`;
+  io.observe(el);
+});
+
+// ─────────── DASHBOARD: 49 skills ───────────
+const SKILLS = [
+  {n:'brand-identity-system',c:'Design',d:'Complete brand systems: logos, color tokens, typography scale, voice guidelines, guideline sites.',r:'€600 – €6k'},
+  {n:'app-ui-designer',c:'Design',d:'Native-feeling mobile UIs — iOS HIG, Material 3, React Native, bottom sheets, haptics.',r:'€500 – €5k'},
+  {n:'immersive-landing',c:'Design',d:'Cinematic hero sections, WebGL headlines, scroll-unfolding narratives, agency-style sites.',r:'€800 – €8k'},
+  {n:'webgl-3d-designer',c:'Design',d:'Three.js / R3F 3D scenes: PBR materials, HDR environments, GLTF viewers, post-processing.',r:'€1k – €10k'},
+  {n:'shader-art-master',c:'Design',d:'Custom GLSL shaders — gradient meshes, noise fields, ray-marched scenes, morphing blobs.',r:'€500 – €4k'},
+  {n:'particle-systems',c:'Design',d:'Interactive particle systems: flocking, attractors, galaxies, cursor trails, GPU 100k+ points.',r:'€400 – €3k'},
+  {n:'motion-interaction',c:'Design',d:'Motion choreography — GSAP, Motion, staggered reveals, magnetic buttons, FLIP animations.',r:'€300 – €3k'},
+  {n:'scroll-experiences',c:'Design',d:'Lenis smooth scroll, pinned sections, parallax, scroll-scrubbed cameras, narrative landings.',r:'€500 – €5k'},
+  {n:'svg-motion',c:'Design',d:'Animated SVG — logo reveals, path drawing, morph icons, gradient animations.',r:'€200 – €2k'},
+  {n:'generative-visuals',c:'Design',d:'p5.js generative art, flow fields, Voronoi, reaction-diffusion, seeded randomness.',r:'€300 – €3k'},
+  {n:'micro-interactions',c:'Design',d:'Button press, hover, focus rings, toggles, custom cursors — the "expensive feel".',r:'€200 – €1.5k'},
+  {n:'premium-digital-art',c:'Design',d:'Poster series, NFT-quality art, wallpapers, gallery pieces, print-ready aesthetic work.',r:'€200 – €2k'},
+  {n:'typography-art',c:'Design',d:'Editorial headlines, variable-font experiments, kinetic type, quote posters, letterform logos.',r:'€300 – €2k'},
+  {n:'motion-reels',c:'Design',d:'Instagram Reels, TikTok, YouTube Shorts, thumbnails. Programmatic via Remotion + ffmpeg.',r:'€300 – €3k'},
+  {n:'social-media-graphics',c:'Design',d:'IG carousels, LinkedIn posts, OG images, podcast cards. Programmatic via Satori.',r:'€200 – €2k'},
+  {n:'dashboard-dataviz',c:'Design',d:'Analytics dashboards, charts, KPI cards, data tables. Tremor, Recharts, Visx, TanStack.',r:'€800 – €6k'},
+  {n:'print-export-prep',c:'Design',d:'Print-ready export — 300 DPI, CMYK, bleed, ICC profiles, Etsy/Society6/Displate mockups.',r:'€150 – €1k'},
+  {n:'consulting-frameworks',c:'Strategy',d:'MECE, Pyramid Principle, issue trees, Porter\u2019s 5F, BCG Matrix, 7S, value chain, SWOT.',r:'€400 – €3k'},
+  {n:'case-interview-prep',c:'Strategy',d:'MBB case coaching — profitability, market entry, M&A, sizing, pricing, 80+ case drills.',r:'€200 – €1.5k'},
+  {n:'financial-modeling',c:'Strategy',d:'3-statement models, DCF, LBO, M&A accretion/dilution, SaaS metrics, sensitivity.',r:'€500 – €8k'},
+  {n:'private-equity-diligence',c:'Strategy',d:'Commercial due diligence, IC memos, 100-day plans, value creation plans, portfolio ops.',r:'€2k – €15k'},
+  {n:'ma-advisory',c:'Strategy',d:'Pitchbooks, CIMs, teasers, valuation (comps, precedents, DCF, LBO), buyer lists, process.',r:'€1k – €12k'},
+  {n:'consulting-slide-design',c:'Strategy',d:'Action-title slides, McKinsey-style decks, driver trees, 2x2s, waterfalls, bridges.',r:'€500 – €5k'},
+  {n:'strategy-memo-writing',c:'Strategy',d:'BLUF memos, IC memos, board memos, 6-pagers. Pyramid structure, decisive voice.',r:'€200 – €2k'},
+  {n:'market-research',c:'Strategy',d:'Desk + expert + customer research, TAM/SAM/SOM sizing, competitive maps, report output.',r:'€500 – €8k'},
+  {n:'venture-capital-associate',c:'Strategy',d:'Deal sourcing, IC memos, market maps, thesis development, founder diligence, term basics.',r:'€500 – €5k'},
+  {n:'webdev-fullstack',c:'Engineering',d:'Next.js 15 + Supabase + Stripe + Clerk apps. TypeScript, Tailwind, Drizzle, Vercel deploys.',r:'€1k – €8k'},
+  {n:'ai-saas-builder',c:'Engineering',d:'Claude / OpenAI-powered SaaS. Streaming UI, RAG, vector DB, caching, usage-based billing.',r:'€2k – €20k'},
+  {n:'chrome-extensions',c:'Engineering',d:'Manifest V3 extensions, side panels, content scripts, Chrome Web Store launch, monetization.',r:'€500 – €4k'},
+  {n:'shopify-dev',c:'Engineering',d:'Custom themes (OS 2.0), Hydrogen storefronts, checkout extensions, Shopify apps + Polaris.',r:'€1k – €10k'},
+  {n:'pitch-decks',c:'Content',d:'Investor decks, sales decks, board decks. Narrative + design + financial back-up.',r:'€800 – €5k'},
+  {n:'ai-voice-avatar',c:'Content',d:'ElevenLabs voices, HeyGen avatars, multilingual dubs, AI spokespeople, Descript pipelines.',r:'€300 – €3k'},
+  {n:'linkedin-ghostwriting',c:'Content',d:'Founder/exec personal brand — posts, carousels, DM strategy, inbound pipeline.',r:'€1.5k – €6k/mo'},
+  {n:'newsletter-ops',c:'Content',d:'Beehiiv, Substack, Ghost. Writing, growth, referral loops, sponsorships, migrations.',r:'€1.5k – €8k/mo'},
+  {n:'podcast-production',c:'Content',d:'Edit (Descript), show notes, chapters, YouTube clips, SEO, distribution.',r:'€300 – €1.5k/ep'},
+  {n:'course-builder',c:'Content',d:'Curriculum, slides, video, workbook, launch funnel. Kajabi, Teachable, Maven, Circle.',r:'€2k – €15k'},
+  {n:'gumroad-digital-products',c:'Content',d:'Templates, ebooks, prompt libraries, swipe files. Lemon Squeezy / Gumroad launch + grow.',r:'€200 – €3k'},
+  {n:'email-marketing',c:'Growth',d:'Klaviyo flows, welcome series, abandoned cart, win-back, deliverability, React Email.',r:'€1k – €5k/mo'},
+  {n:'cold-outreach',c:'Growth',d:'Instantly, Smartlead, Apollo, Clay pipelines — domains, warmup, sequences, reply handling.',r:'€1k – €5k/mo'},
+  {n:'seo-content-engine',c:'Growth',d:'Programmatic SEO, topical authority maps, schema markup, technical audits, Ahrefs workflows.',r:'€1k – €8k/mo'},
+  {n:'paid-ads-creative',c:'Growth',d:'Meta/TikTok/Google ads — creative strategy, UGC scripts, hooks, testing factory.',r:'€1k – €6k/mo'},
+  {n:'notion-systems',c:'Ops',d:'Dashboards, CRMs, OKRs, content calendars, student planners. Databases + relations + rollups.',r:'€200 – €2k'},
+  {n:'airtable-bases',c:'Ops',d:'Relational data apps, Interface Designer, automations, scripting extensions, portals.',r:'€300 – €3k'},
+  {n:'automation-plumbing',c:'Ops',d:'Make / n8n / Zapier / Pipedream workflows. Integrations + AI steps + webhook pipelines.',r:'€200 – €2k'},
+  {n:'legal-templates',c:'Specialty',d:'Privacy policy, ToS, NDAs, contractor agreements, DMCA. Template-based (not legal advice).',r:'€150 – €1k'},
+  {n:'bookkeeping-workflows',c:'Specialty',d:'QuickBooks / Xero setup, chart of accounts, monthly close, receipt capture, reports.',r:'€300 – €2k/mo'},
+  {n:'real-estate-listing',c:'Specialty',d:'MLS listings, Airbnb descriptions, CMA reports, property marketing, photography direction.',r:'€100 – €800'},
+  {n:'grant-writing',c:'Specialty',d:'Foundation, federal (SBIR, NIH), arts, state grants. Proposals, budgets, evaluation plans.',r:'€500 – €5k'},
+  {n:'trademark-research',c:'Specialty',d:'Knockout searches, clearance memos (USPTO, WIPO, EUIPO). Not legal advice.',r:'€100 – €600'},
+];
+
+(function initDashboard(){
+  const grid=document.getElementById('dashGrid');
+  const pillsEl=document.getElementById('dashPills');
+  const search=document.getElementById('dashSearch');
+  const countEl=document.getElementById('dashCount');
+  const emptyEl=document.getElementById('dashEmpty');
+  if(!grid) return;
+  const cats=['all','Design','Strategy','Engineering','Content','Growth','Ops','Specialty'];
+  const counts={all:SKILLS.length};
+  SKILLS.forEach(s=>counts[s.c]=(counts[s.c]||0)+1);
+  pillsEl.innerHTML=cats.map(c=>`<button class="pill ${c==='all'?'on':''}" data-cat="${c}">${c==='all'?'All':c}<span>${counts[c]||0}</span></button>`).join('');
+  grid.innerHTML=SKILLS.map(s=>`
+    <div class="skill-card cat-${s.c.toLowerCase()}" data-cat="${s.c}" data-name="${s.n.toLowerCase()}" data-desc="${s.d.toLowerCase()}">
+      <div class="skill-cat">${s.c}</div>
+      <div class="skill-name">${s.n}</div>
+      <div class="skill-desc">${s.d}</div>
+      <div class="skill-rate">Typical <b>${s.r}</b></div>
+    </div>`).join('');
+  let activeCat='all',activeSearch='';
+  function apply(){
+    let visible=0;
+    document.querySelectorAll('.skill-card').forEach(c=>{
+      const catOk=activeCat==='all'||c.dataset.cat===activeCat;
+      const searchOk=!activeSearch||c.dataset.name.includes(activeSearch)||c.dataset.desc.includes(activeSearch)||c.dataset.cat.toLowerCase().includes(activeSearch);
+      if(catOk&&searchOk){c.classList.remove('hide');visible++;}else c.classList.add('hide');
+    });
+    countEl.textContent=visible;
+    emptyEl.classList.toggle('show',visible===0);
+  }
+  pillsEl.addEventListener('click',e=>{
+    const btn=e.target.closest('.pill');
+    if(!btn) return;
+    pillsEl.querySelectorAll('.pill').forEach(p=>p.classList.remove('on'));
+    btn.classList.add('on');
+    activeCat=btn.dataset.cat;
+    apply();
+  });
+  search.addEventListener('input',e=>{
+    activeSearch=e.target.value.toLowerCase().trim();
+    apply();
+  });
+})();
+
+// ─────────── BOOK FORM — submits to Supabase ───────────
+const form=document.getElementById('bookForm');
+const submit=document.getElementById('bookSubmit');
+const toast=document.getElementById('bookToast');
+form.addEventListener('submit',async e=>{
+  e.preventDefault();
+  submit.disabled=true;
+  submit.textContent='Sending…';
+  toast.className='book-toast';
+  const data=Object.fromEntries(new FormData(form));
+  const { error } = await supa.from('portfolio_bookings').insert({
+    name: data.name.trim(),
+    email: data.email.trim(),
+    service: data.service,
+    budget: data.budget,
+    brief: data.brief.trim(),
+    source: 'portfolio-site'
+  });
+  if(error){
+    toast.className='book-toast err';
+    toast.textContent='Couldn\u2019t send — try emailing me directly: waleed.imran@edu.escp.eu';
+    submit.disabled=false;
+    submit.textContent='Send it →';
+    console.error(error);
+    return;
+  }
+  toast.className='book-toast ok';
+  toast.innerHTML='Sent. I\u2019ll reply within 24 hours &mdash; thanks for reaching out.';
+  submit.textContent='Sent ✓';
+  form.reset();
+  setTimeout(()=>{submit.disabled=false;submit.textContent='Send it →';},6000);
+});
+</script>
+</body>
+</html>

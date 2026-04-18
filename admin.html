@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Bookings · Waleed Imran</title>
+<meta name="robots" content="noindex, nofollow" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:ital,wght@0,400;0,500;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#0a0a0d;
+  --bg-2:#12121a;
+  --panel:rgba(255,255,255,0.04);
+  --panel-2:rgba(255,255,255,0.06);
+  --ink:#f5f5f7;
+  --ink-2:#b8b8c0;
+  --ink-3:#7a7a85;
+  --line:rgba(255,255,255,0.08);
+  --accent:#d9b07a;
+  --blue:#7EC8E3;
+  --green:#6BC67E;
+  --orange:#FF9F43;
+  --red:#ef4444;
+  --ease:cubic-bezier(0.22,1,0.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:var(--bg);color:var(--ink);font-family:"Inter",-apple-system,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+body{min-height:100vh;line-height:1.5}
+::selection{background:var(--accent);color:#000}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+
+.mesh{position:fixed;inset:0;z-index:0;opacity:0.25;pointer-events:none;filter:blur(80px)}
+.mesh::before,.mesh::after{content:"";position:absolute;border-radius:50%}
+.mesh::before{width:55vw;height:55vw;top:-15vw;right:-15vw;background:#1f5f7f}
+.mesh::after{width:45vw;height:45vw;bottom:-15vw;left:-15vw;background:#d9b07a;opacity:0.5}
+
+/* ─────────── nav ─────────── */
+nav{position:sticky;top:0;left:0;right:0;z-index:50;padding:18px 40px;display:flex;justify-content:space-between;align-items:center;background:rgba(10,10,13,0.8);backdrop-filter:blur(20px) saturate(1.3);border-bottom:1px solid var(--line)}
+.logo{font-family:"Fraunces";font-weight:500;font-size:20px;letter-spacing:-0.01em;display:flex;align-items:center;gap:10px}
+.logo-mark{width:12px;height:12px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px rgba(217,176,122,0.5)}
+.nav-actions{display:flex;gap:10px;align-items:center}
+.nav-actions a,.nav-actions button{font-size:13px;color:var(--ink-2);padding:8px 14px;border:1px solid var(--line);background:rgba(255,255,255,0.04);border-radius:100px;font-weight:500;transition:all 0.2s}
+.nav-actions a:hover,.nav-actions button:hover{color:var(--ink);border-color:rgba(255,255,255,0.18)}
+
+/* ─────────── auth gate ─────────── */
+.gate{min-height:calc(100vh - 70px);display:grid;place-items:center;padding:40px;position:relative;z-index:5}
+.gate-card{max-width:440px;width:100%;background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:40px 36px;backdrop-filter:blur(20px);position:relative;overflow:hidden}
+.gate-card::before{content:"";position:absolute;top:-50%;right:-30%;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,var(--accent) 0%,transparent 70%);opacity:0.12;filter:blur(30px)}
+.gate-tag{font-family:"Fraunces";font-style:italic;font-size:12px;color:var(--accent);letter-spacing:0.22em;text-transform:uppercase;font-weight:500;position:relative;z-index:1}
+.gate-card h1{font-family:"Fraunces";font-weight:400;font-style:italic;font-size:44px;line-height:1;letter-spacing:-0.02em;margin:12px 0 10px;position:relative;z-index:1}
+.gate-card h1 .sans{font-family:"Inter";font-style:normal;font-weight:700}
+.gate-card p{font-size:14px;color:var(--ink-2);margin-bottom:28px;line-height:1.55;position:relative;z-index:1}
+.gate-form{display:flex;flex-direction:column;gap:10px;position:relative;z-index:1}
+.gate-form label{font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.gate-form input{background:rgba(255,255,255,0.04);border:1px solid var(--line);color:var(--ink);padding:12px 14px;border-radius:12px;font-family:"JetBrains Mono",monospace;font-size:14px;outline:0;transition:all 0.25s;width:100%}
+.gate-form input:focus{border-color:var(--accent);background:rgba(255,255,255,0.08)}
+.gate-submit{background:var(--accent);color:#000;border:0;padding:14px;border-radius:12px;font-size:14px;font-weight:600;margin-top:6px;cursor:pointer;transition:all 0.3s var(--ease);box-shadow:0 10px 24px rgba(217,176,122,0.25)}
+.gate-submit:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 14px 32px rgba(217,176,122,0.4)}
+.gate-submit:disabled{opacity:0.6;cursor:wait}
+.gate-err{color:#f7b5b5;font-size:13px;margin-top:6px;display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);padding:10px 12px;border-radius:10px;position:relative;z-index:1}
+.gate-err.show{display:block}
+
+/* ─────────── dashboard ─────────── */
+.dash{padding:40px;max-width:1400px;margin:0 auto;position:relative;z-index:5;display:none}
+.dash.show{display:block}
+.dash-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:32px;flex-wrap:wrap;gap:14px}
+.dash-title{font-family:"Fraunces";font-weight:400;font-size:44px;line-height:1;letter-spacing:-0.02em;font-style:italic}
+.dash-title .sans{font-family:"Inter";font-style:normal;font-weight:700}
+.dash-sub{font-size:14px;color:var(--ink-3);margin-top:4px}
+.dash-actions{display:flex;gap:8px;align-items:center}
+.dash-actions button,.dash-actions select{background:rgba(255,255,255,0.04);border:1px solid var(--line);color:var(--ink-2);padding:10px 14px;border-radius:10px;font-size:13px;font-weight:500;font-family:inherit;transition:all 0.2s}
+.dash-actions button:hover,.dash-actions select:hover{color:var(--ink);border-color:rgba(255,255,255,0.18)}
+.dash-actions .refresh svg{transition:transform 0.4s}
+.dash-actions .refresh.spin svg{transform:rotate(360deg)}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:32px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px 22px;position:relative;overflow:hidden;backdrop-filter:blur(20px)}
+.stat::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:var(--c,var(--accent));opacity:0.7}
+.stat-label{font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:8px}
+.stat-value{font-family:"Fraunces";font-style:italic;font-size:42px;font-weight:500;line-height:1;color:var(--ink)}
+.stat-meta{font-size:12px;color:var(--ink-3);margin-top:6px}
+.stat.total{--c:var(--accent)}
+.stat.new{--c:var(--green)}
+.stat.replied{--c:var(--blue)}
+.stat.archived{--c:var(--ink-3)}
+.stat.new .stat-value{color:var(--green)}
+
+/* filter */
+.filter{margin-bottom:20px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.filter-left{display:flex;gap:6px;flex-wrap:wrap}
+.filter-pill{background:rgba(255,255,255,0.04);border:1px solid var(--line);color:var(--ink-2);padding:7px 14px;border-radius:100px;font-size:12.5px;font-weight:500;font-family:inherit;transition:all 0.25s var(--ease);display:inline-flex;align-items:center;gap:7px}
+.filter-pill:hover{border-color:rgba(255,255,255,0.18);color:var(--ink)}
+.filter-pill.on{background:var(--accent);color:#0a0a0d;border-color:var(--accent)}
+.filter-pill span{font-size:10px;padding:1px 7px;background:rgba(0,0,0,0.2);border-radius:100px;font-weight:600}
+.filter-pill.on span{background:rgba(0,0,0,0.3);color:#0a0a0d}
+.filter-search{position:relative;min-width:240px;flex:0 1 320px}
+.filter-search input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--line);color:var(--ink);padding:9px 16px 9px 36px;border-radius:100px;font-size:13px;outline:0;font-family:inherit}
+.filter-search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--ink-3)}
+
+/* bookings list */
+.bookings{display:flex;flex-direction:column;gap:10px}
+.booking{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;transition:border-color 0.25s,background 0.25s;backdrop-filter:blur(10px)}
+.booking.hide{display:none}
+.booking:hover{border-color:rgba(217,176,122,0.2)}
+.booking.open{background:var(--panel-2);border-color:rgba(217,176,122,0.3)}
+.booking-row{display:grid;grid-template-columns:1.3fr 1.6fr 1fr 1fr auto;gap:16px;padding:16px 22px;align-items:center;cursor:pointer;transition:background 0.2s}
+.booking-row:hover{background:rgba(255,255,255,0.02)}
+@media(max-width:860px){.booking-row{grid-template-columns:1fr;gap:6px}}
+.b-name{font-weight:600;font-size:15px;letter-spacing:-0.01em}
+.b-email{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--ink-2);word-break:break-all}
+.b-service{font-size:13px;color:var(--ink-2)}
+.b-budget{font-size:13px;color:var(--ink-2);font-family:"Fraunces";font-style:italic;font-weight:500}
+.b-meta{display:flex;gap:10px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+.b-date{font-size:12px;color:var(--ink-3)}
+.b-status{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;letter-spacing:0.04em}
+.b-status.new{background:rgba(107,198,126,0.15);color:var(--green);border:1px solid rgba(107,198,126,0.3)}
+.b-status.replied{background:rgba(126,200,227,0.15);color:var(--blue);border:1px solid rgba(126,200,227,0.3)}
+.b-status.archived{background:rgba(122,122,133,0.15);color:var(--ink-3);border:1px solid rgba(122,122,133,0.3)}
+.b-caret{color:var(--ink-3);transition:transform 0.3s}
+.booking.open .b-caret{transform:rotate(90deg)}
+
+.booking-detail{max-height:0;overflow:hidden;transition:max-height 0.4s var(--ease)}
+.booking.open .booking-detail{max-height:800px}
+.booking-detail-inner{padding:8px 22px 22px;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 260px;gap:24px}
+@media(max-width:760px){.booking-detail-inner{grid-template-columns:1fr}}
+.brief{background:rgba(0,0,0,0.25);border-left:2px solid var(--accent);padding:14px 18px;border-radius:0 10px 10px 0;font-size:14px;color:var(--ink-2);line-height:1.6;white-space:pre-wrap}
+.actions{display:flex;flex-direction:column;gap:8px}
+.actions button{padding:10px 14px;border-radius:10px;font-size:13px;font-weight:500;border:1px solid var(--line);background:rgba(255,255,255,0.04);color:var(--ink-2);text-align:left;display:flex;align-items:center;gap:10px;transition:all 0.2s;cursor:pointer;font-family:inherit}
+.actions button:hover{color:var(--ink);border-color:rgba(255,255,255,0.18);background:rgba(255,255,255,0.08)}
+.actions button.primary{background:var(--accent);color:#000;border-color:var(--accent);font-weight:600}
+.actions button.primary:hover{background:#e8c28a}
+.actions button.danger{color:#f7b5b5;border-color:rgba(239,68,68,0.25)}
+.actions button.danger:hover{background:rgba(239,68,68,0.1);color:#fff}
+.actions button svg{width:14px;height:14px;flex-shrink:0}
+
+.empty{text-align:center;padding:80px 20px;color:var(--ink-3)}
+.empty-icon{font-family:"Fraunces";font-style:italic;font-size:56px;color:var(--ink-3);opacity:0.4;margin-bottom:14px}
+.empty h3{font-family:"Fraunces";font-weight:500;font-size:22px;margin-bottom:8px;color:var(--ink-2)}
+.empty p{font-size:14px}
+
+.loading{text-align:center;padding:60px 20px;color:var(--ink-3);font-size:14px}
+.loading::after{content:"";display:inline-block;width:14px;height:14px;border:2px solid var(--ink-3);border-right-color:transparent;border-radius:50%;animation:spin 1s linear infinite;margin-left:10px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.toast{position:fixed;bottom:20px;right:20px;z-index:100;background:var(--bg-2);border:1px solid var(--line);padding:14px 18px;border-radius:12px;font-size:13px;color:var(--ink);display:none;max-width:320px;box-shadow:0 20px 40px rgba(0,0,0,0.4)}
+.toast.show{display:block;animation:slideIn 0.3s var(--ease)}
+.toast.ok{border-color:rgba(107,198,126,0.4)}
+.toast.err{border-color:rgba(239,68,68,0.4);color:#f7b5b5}
+@keyframes slideIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+</style>
+</head>
+<body>
+
+<div class="mesh"></div>
+
+<nav>
+  <div class="logo"><div class="logo-mark"></div>Waleed Imran · admin</div>
+  <div class="nav-actions">
+    <a href="index.html">← Site</a>
+    <button id="logout" style="display:none">Sign out</button>
+  </div>
+</nav>
+
+<!-- ─────────── AUTH GATE ─────────── -->
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <span class="gate-tag">Private · admin only</span>
+    <h1>Bookings,<br><span class="sans">signed in.</span></h1>
+    <p>This page is just for me — it pulls project briefs that came in through the landing page. Enter the admin password to continue.</p>
+    <form class="gate-form" id="gateForm">
+      <label>Admin password</label>
+      <input id="gatePass" type="password" autocomplete="current-password" required placeholder="enter password…" />
+      <button class="gate-submit" type="submit" id="gateBtn">Unlock dashboard →</button>
+      <div class="gate-err" id="gateErr"></div>
+    </form>
+  </div>
+</div>
+
+<!-- ─────────── DASHBOARD ─────────── -->
+<div class="dash" id="dash">
+  <div class="dash-header">
+    <div>
+      <h1 class="dash-title"><span class="sans">Bookings</span>, <em>live.</em></h1>
+      <div class="dash-sub" id="dashSub">— loading —</div>
+    </div>
+    <div class="dash-actions">
+      <button class="refresh" id="refresh" title="Refresh">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+      </button>
+      <button id="export">Export CSV</button>
+    </div>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="filter">
+    <div class="filter-left" id="statusPills"></div>
+    <div class="filter-search">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input id="filterSearch" placeholder="Search name, email, project…" />
+    </div>
+  </div>
+
+  <div id="bookingsContainer">
+    <div class="loading">Loading bookings</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const SUPABASE_URL = 'https://bniudmwlpaqqpthsgppv.supabase.co';
+const SUPABASE_ANON = 'sb_publishable_Z3bK3kFntXPjfqYxDD4D5A_OX2bXXIb';
+const supa = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+const gate=document.getElementById('gate');
+const dash=document.getElementById('dash');
+const gateForm=document.getElementById('gateForm');
+const gatePass=document.getElementById('gatePass');
+const gateBtn=document.getElementById('gateBtn');
+const gateErr=document.getElementById('gateErr');
+const logoutBtn=document.getElementById('logout');
+const statsEl=document.getElementById('stats');
+const statusPills=document.getElementById('statusPills');
+const filterSearch=document.getElementById('filterSearch');
+const container=document.getElementById('bookingsContainer');
+const refreshBtn=document.getElementById('refresh');
+const exportBtn=document.getElementById('export');
+const dashSub=document.getElementById('dashSub');
+const toast=document.getElementById('toast');
+
+let adminPass = sessionStorage.getItem('wiAdminPass') || '';
+let bookings = [];
+let activeStatus = 'all';
+let activeSearch = '';
+
+function showToast(msg, kind='ok'){
+  toast.textContent=msg;
+  toast.className='toast show '+kind;
+  setTimeout(()=>toast.className='toast',3000);
+}
+
+// ─────────── auth ───────────
+async function tryAuth(pass){
+  const { data, error } = await supa.rpc('get_portfolio_bookings', { admin_pass: pass });
+  if(error) throw error;
+  return data || [];
+}
+
+async function unlock(pass){
+  try{
+    const rows = await tryAuth(pass);
+    adminPass = pass;
+    sessionStorage.setItem('wiAdminPass', pass);
+    bookings = rows;
+    gate.style.display='none';
+    dash.classList.add('show');
+    logoutBtn.style.display='inline-block';
+    render();
+    return true;
+  }catch(err){
+    return false;
+  }
+}
+
+gateForm.addEventListener('submit',async e=>{
+  e.preventDefault();
+  gateBtn.disabled=true;
+  gateBtn.textContent='Checking…';
+  gateErr.classList.remove('show');
+  const ok = await unlock(gatePass.value);
+  if(!ok){
+    gateErr.textContent='Wrong password. Try again.';
+    gateErr.classList.add('show');
+    gateBtn.disabled=false;
+    gateBtn.textContent='Unlock dashboard →';
+    gatePass.value='';
+    gatePass.focus();
+  }
+});
+
+logoutBtn.addEventListener('click',()=>{
+  sessionStorage.removeItem('wiAdminPass');
+  location.reload();
+});
+
+// auto-unlock if we have a cached password
+if(adminPass){
+  unlock(adminPass).then(ok=>{
+    if(!ok){
+      sessionStorage.removeItem('wiAdminPass');
+    }
+  });
+}
+
+// ─────────── rendering ───────────
+function render(){
+  // stats
+  const total=bookings.length;
+  const newN=bookings.filter(b=>b.status==='new').length;
+  const replied=bookings.filter(b=>b.status==='replied').length;
+  const archived=bookings.filter(b=>b.status==='archived').length;
+  const weekAgo=new Date(Date.now()-7*24*3600*1000);
+  const thisWeek=bookings.filter(b=>new Date(b.created_at)>weekAgo).length;
+  const thisMonth=bookings.filter(b=>{
+    const d=new Date(b.created_at);const now=new Date();
+    return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
+  }).length;
+
+  statsEl.innerHTML=`
+    <div class="stat total"><div class="stat-label">Total bookings</div><div class="stat-value">${total}</div><div class="stat-meta">all time</div></div>
+    <div class="stat new"><div class="stat-label">New · unreplied</div><div class="stat-value">${newN}</div><div class="stat-meta">need action</div></div>
+    <div class="stat replied"><div class="stat-label">Replied</div><div class="stat-value">${replied}</div><div class="stat-meta">${thisMonth} this month</div></div>
+    <div class="stat archived"><div class="stat-label">This week</div><div class="stat-value">${thisWeek}</div><div class="stat-meta">last 7 days</div></div>
+  `;
+
+  // status pills
+  const cats=[['all','All',total],['new','New',newN],['replied','Replied',replied],['archived','Archived',archived]];
+  statusPills.innerHTML=cats.map(([k,l,n])=>`<button class="filter-pill ${activeStatus===k?'on':''}" data-s="${k}">${l}<span>${n}</span></button>`).join('');
+  statusPills.querySelectorAll('.filter-pill').forEach(p=>p.addEventListener('click',()=>{activeStatus=p.dataset.s;render();}));
+
+  // sub
+  const latest=bookings[0]?new Date(bookings[0].created_at):null;
+  dashSub.textContent = latest ? `Latest: ${timeAgo(latest)} · ${total} total` : `${total} total`;
+
+  // list
+  const filtered = bookings.filter(b=>{
+    const sOk = activeStatus==='all' || b.status===activeStatus;
+    const q=activeSearch;
+    const qOk = !q || (b.name||'').toLowerCase().includes(q) || (b.email||'').toLowerCase().includes(q) || (b.brief||'').toLowerCase().includes(q) || (b.service||'').toLowerCase().includes(q);
+    return sOk && qOk;
+  });
+
+  if(filtered.length===0){
+    container.innerHTML=`<div class="empty"><div class="empty-icon">— nothing yet —</div><h3>No bookings to show</h3><p>${bookings.length===0?'When someone submits a project brief, it\\'ll appear here.':'Try a different filter or search.'}</p></div>`;
+    return;
+  }
+
+  container.innerHTML = `<div class="bookings">`+filtered.map(b=>`
+    <div class="booking" data-id="${b.id}">
+      <div class="booking-row" onclick="toggleBooking('${b.id}')">
+        <div>
+          <div class="b-name">${esc(b.name)}</div>
+          <div class="b-email">${esc(b.email)}</div>
+        </div>
+        <div class="b-service">${esc(b.service || '—')}</div>
+        <div class="b-budget">${esc(b.budget || '—')}</div>
+        <div class="b-date">${timeAgo(new Date(b.created_at))}</div>
+        <div class="b-meta">
+          <span class="b-status ${b.status}">${b.status}</span>
+          <span class="b-caret">›</span>
+        </div>
+      </div>
+      <div class="booking-detail">
+        <div class="booking-detail-inner">
+          <div class="brief">${esc(b.brief)}</div>
+          <div class="actions">
+            <button class="primary" onclick="replyTo('${esc(b.email)}','${esc(b.name)}','${b.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M4 4l8 8 8-8"/></svg>Reply via email</button>
+            <button onclick="copyEmail('${esc(b.email)}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Copy email</button>
+            ${b.status!=='replied' ? `<button onclick="updateStatus('${b.id}','replied')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Mark replied</button>` : `<button onclick="updateStatus('${b.id}','new')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>Mark new</button>`}
+            ${b.status!=='archived' ? `<button onclick="updateStatus('${b.id}','archived')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v4H3zM5 7v13h14V7"/></svg>Archive</button>` : ''}
+            <button class="danger" onclick="deleteBooking('${b.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-2 14H7L5 6"/></svg>Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('')+`</div>`;
+}
+
+function esc(s){ return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function timeAgo(d){
+  const s=Math.floor((Date.now()-d.getTime())/1000);
+  if(s<60) return 'just now';
+  if(s<3600) return Math.floor(s/60)+'m ago';
+  if(s<86400) return Math.floor(s/3600)+'h ago';
+  if(s<604800) return Math.floor(s/86400)+'d ago';
+  return d.toLocaleDateString(undefined,{month:'short',day:'numeric'});
+}
+
+window.toggleBooking = id => {
+  document.querySelector(`.booking[data-id="${id}"]`).classList.toggle('open');
+};
+
+window.copyEmail = email => {
+  navigator.clipboard.writeText(email).then(()=>showToast(`Copied ${email}`,'ok'));
+};
+
+window.replyTo = (email,name,id) => {
+  const subject = encodeURIComponent(`Re: your project — Waleed`);
+  const body = encodeURIComponent(`Hey ${name.split(' ')[0]},\n\nThanks for reaching out. `);
+  window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+};
+
+window.updateStatus = async (id, newStatus) => {
+  const { error } = await supa.rpc('update_portfolio_booking', {
+    booking_id: id, admin_pass: adminPass, new_status: newStatus, new_notes: null
+  });
+  if(error){showToast('Failed to update','err');return;}
+  const b = bookings.find(x=>x.id===id);
+  if(b) b.status=newStatus;
+  render();
+  showToast(`Marked ${newStatus}`);
+};
+
+window.deleteBooking = async id => {
+  if(!confirm('Delete this booking permanently?')) return;
+  const { error } = await supa.rpc('delete_portfolio_booking', {
+    booking_id: id, admin_pass: adminPass
+  });
+  if(error){showToast('Failed to delete','err');return;}
+  bookings = bookings.filter(x=>x.id!==id);
+  render();
+  showToast('Deleted');
+};
+
+filterSearch.addEventListener('input',e=>{activeSearch=e.target.value.toLowerCase().trim();render();});
+
+refreshBtn.addEventListener('click',async()=>{
+  refreshBtn.classList.add('spin');
+  try{
+    bookings = await tryAuth(adminPass);
+    render();
+    showToast('Refreshed');
+  }catch(e){showToast('Refresh failed','err');}
+  setTimeout(()=>refreshBtn.classList.remove('spin'),500);
+});
+
+exportBtn.addEventListener('click',()=>{
+  if(bookings.length===0){showToast('Nothing to export','err');return;}
+  const headers=['id','created_at','name','email','service','budget','brief','status','notes'];
+  const csv=[headers.join(',')].concat(
+    bookings.map(b=>headers.map(h=>{
+      const v=String(b[h]||'').replace(/"/g,'""');
+      return /[,"\n]/.test(v) ? `"${v}"` : v;
+    }).join(','))
+  ).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`bookings-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Exported CSV');
+});
+
+// auto-refresh every 60 seconds when dashboard is open
+setInterval(async()=>{
+  if(!adminPass||!dash.classList.contains('show')) return;
+  try{ bookings = await tryAuth(adminPass); render(); }catch(e){}
+},60000);
+</script>
+</body>
+</html>
