@@ -213,11 +213,16 @@ nav{position:sticky;top:0;left:0;right:0;z-index:50;padding:18px 40px;display:fl
 <div class="toast" id="toast"></div>
 
 <script type="module">
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.6';
 
 const SUPABASE_URL = 'https://bniudmwlpaqqpthsgppv.supabase.co';
-const SUPABASE_ANON = 'sb_publishable_Z3bK3kFntXPjfqYxDD4D5A_OX2bXXIb';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJuaXVkbXdscGFxcXB0aHNncHB2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMzYzNjcsImV4cCI6MjA4OTcxMjM2N30.WaNKfPUgUBv2HHt6KlbERVoTEGO2_YQnC4GlXCIxBhg';
 const supa = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// Clear any stale session from an earlier backend state
+if (sessionStorage.getItem('wiAdminPass')) {
+  // keep it — auto-unlock will try and clear if invalid
+}
 
 const gate=document.getElementById('gate');
 const dash=document.getElementById('dash');
@@ -255,16 +260,10 @@ async function tryAuth(pass){
 
 async function unlock(pass){
   try{
-    const rows = await tryAuth(pass);
-    adminPass = pass;
-    sessionStorage.setItem('wiAdminPass', pass);
-    bookings = rows;
-    gate.style.display='none';
-    dash.classList.add('show');
-    logoutBtn.style.display='inline-block';
-    render();
+    await unlockWith(pass);
     return true;
   }catch(err){
+    console.warn('[auto-unlock failed]', err);
     return false;
   }
 }
@@ -274,16 +273,44 @@ gateForm.addEventListener('submit',async e=>{
   gateBtn.disabled=true;
   gateBtn.textContent='Checking…';
   gateErr.classList.remove('show');
-  const ok = await unlock(gatePass.value);
-  if(!ok){
-    gateErr.textContent='Wrong password. Try again.';
+  const pass = (gatePass.value || '').trim();
+  if(!pass){
+    gateErr.textContent='Enter a password first.';
     gateErr.classList.add('show');
     gateBtn.disabled=false;
     gateBtn.textContent='Unlock dashboard →';
-    gatePass.value='';
+    return;
+  }
+  try{
+    await tryAuth(pass);
+    await unlockWith(pass);
+  }catch(err){
+    console.error('[admin login]', err);
+    const msg = (err && err.message) || '';
+    if(msg.toLowerCase().includes('unauthorized') || (err && err.code === '28000')){
+      gateErr.textContent='Wrong password. Try again.';
+    }else if(msg.toLowerCase().includes('failed to fetch') || msg.toLowerCase().includes('networkerror')){
+      gateErr.textContent='Can\u2019t reach the server. Check your connection and try again.';
+    }else{
+      gateErr.textContent='Login error: '+(msg || 'unknown. Open dev tools → console for details.');
+    }
+    gateErr.classList.add('show');
+    gateBtn.disabled=false;
+    gateBtn.textContent='Unlock dashboard →';
     gatePass.focus();
+    gatePass.select();
   }
 });
+
+async function unlockWith(pass){
+  adminPass = pass;
+  sessionStorage.setItem('wiAdminPass', pass);
+  bookings = await tryAuth(pass);
+  gate.style.display='none';
+  dash.classList.add('show');
+  logoutBtn.style.display='inline-block';
+  render();
+}
 
 logoutBtn.addEventListener('click',()=>{
   sessionStorage.removeItem('wiAdminPass');
