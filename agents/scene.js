@@ -1,6 +1,23 @@
 // Tokyo Dystopian Campfire · scroll-reactive 3D backdrop
-// Wrap in try/catch + expose errors so silent failures don't leave a black screen.
 window.__sceneErr = null;
+
+// ─── Safari/WebKit workaround: gl.getShaderPrecisionFormat sometimes returns null ───
+// Patch the prototype BEFORE Three touches any WebGL context.
+(function patchWebGL(){
+  const fallback = { rangeMin: 127, rangeMax: 127, precision: 23 };
+  const patch = (proto) => {
+    if (!proto) return;
+    const orig = proto.getShaderPrecisionFormat;
+    if (!orig || orig.__patched) return;
+    proto.getShaderPrecisionFormat = function(...args){
+      return orig.call(this, ...args) || fallback;
+    };
+    proto.getShaderPrecisionFormat.__patched = true;
+  };
+  if (typeof WebGLRenderingContext !== 'undefined') patch(WebGLRenderingContext.prototype);
+  if (typeof WebGL2RenderingContext !== 'undefined') patch(WebGL2RenderingContext.prototype);
+})();
+
 try {
 const three_mod = await import('three');
 const THREE = three_mod;
