@@ -459,12 +459,63 @@ window.copyMd = (id, evt) => {
   if (!t) return;
   navigator.clipboard.writeText(t.output_markdown || '').then(() => showToast('▸ markdown copied'));
 };
-window.openLightbox = (url, type) => {
+window.openLightbox = async (url, type) => {
   const lb = document.getElementById('lightbox');
-  lb.innerHTML = type === 'pdf' ? `<iframe src="${esc(url)}"></iframe>` : `<img src="${esc(url)}" alt=""/>`;
+  const ext = (url || '').split('.').pop().toLowerCase().split('?')[0];
+  const kind = type || (['png','jpg','jpeg','gif','webp','svg'].includes(ext) ? 'image' : ext);
+  const fname = (url || '').split('/').pop().split('?')[0];
+
+  const closeBtn = `<button class="lb-close" onclick="event.stopPropagation();document.getElementById('lightbox').classList.remove('show')">×</button>`;
+  const title = `<div class="lb-doc-title">ARTIFACT · <b>${esc(fname)}</b></div>`;
+
+  if (kind === 'image' || kind === 'svg') {
+    lb.innerHTML = `<img src="${esc(url)}" alt="" onclick="event.stopPropagation()"/>`;
+  }
+  else if (kind === 'md' || kind === 'markdown' || kind === 'txt') {
+    lb.innerHTML = `<div class="lb-doc" onclick="event.stopPropagation()">${closeBtn}${title}<div class="lb-loading">▸ loading ${esc(fname)}</div></div>`;
+    lb.classList.add('show');
+    try {
+      const r = await fetch(url);
+      const txt = await r.text();
+      lb.querySelector('.lb-doc').innerHTML = closeBtn + title + `<div class="md">${renderMarkdown(txt)}</div>`;
+    } catch (e) {
+      lb.querySelector('.lb-doc').innerHTML = closeBtn + title + `<div style="padding:20px;color:var(--err);font-family:var(--mono);font-size:12px">▸ failed: ${esc(e.message)}</div>`;
+    }
+    return;
+  }
+  else if (kind === 'csv') {
+    lb.innerHTML = `<div class="lb-doc" onclick="event.stopPropagation()">${closeBtn}${title}<div class="lb-loading">▸ loading ${esc(fname)}</div></div>`;
+    lb.classList.add('show');
+    try {
+      const r = await fetch(url);
+      const txt = await r.text();
+      // tolerant CSV parse (no quoted-comma handling — fine for simple CSVs)
+      const rows = txt.split('\n').filter(l => l.trim()).map(l => l.split(','));
+      if (!rows.length) throw new Error('empty CSV');
+      const head = rows[0];
+      const body = rows.slice(1);
+      lb.querySelector('.lb-doc').innerHTML = closeBtn + title + `<table class="lb-csv"><thead><tr>${head.map(h => '<th>' + esc(h) + '</th>').join('')}</tr></thead><tbody>${body.map(row => '<tr>' + row.map(c => '<td>' + esc(c) + '</td>').join('') + '</tr>').join('')}</tbody></table>`;
+    } catch (e) {
+      lb.querySelector('.lb-doc').innerHTML = closeBtn + title + `<div style="padding:20px;color:var(--err)">▸ failed: ${esc(e.message)}</div>`;
+    }
+    return;
+  }
+  else if (kind === 'html' || kind === 'htm') {
+    lb.innerHTML = `<iframe src="${esc(url)}" onclick="event.stopPropagation()"></iframe>`;
+  }
+  else if (kind === 'pdf') {
+    lb.innerHTML = `<iframe src="${esc(url)}" onclick="event.stopPropagation()"></iframe>`;
+  }
+  else {
+    // unknown type — open in new tab instead
+    window.open(url, '_blank');
+    return;
+  }
   lb.classList.add('show');
 };
-document.getElementById('lightbox').addEventListener('click', () => document.getElementById('lightbox').classList.remove('show'));
+document.getElementById('lightbox').addEventListener('click', (e) => {
+  if (e.target.id === 'lightbox') document.getElementById('lightbox').classList.remove('show');
+});
 
 async function updateTask(id, fields){
   const { error } = await supa.rpc('update_agent_task', {
