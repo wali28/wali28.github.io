@@ -1,0 +1,516 @@
+<!doctype html>
+<html><head><style>
+body{margin:0;background:#0a0a0d;overflow:hidden}
+canvas{display:block}
+</style></head>
+<body>
+<script type="importmap">
+{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+// ═══════════════════════════════════════════════════════
+// LEVA UI painted to a canvas → used as phone screen texture
+// ═══════════════════════════════════════════════════════
+function paintLevaScreen(){
+  const W = 1170, H = 2532;  // iPhone 15 Pro @3x
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const ctx = c.getContext('2d');
+
+  // base: blue-mist gradient (Leva bg)
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, '#F3F9FD');
+  g.addColorStop(1, '#E8F2F9');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+
+  // dynamic island
+  ctx.fillStyle = '#0a0a0e';
+  roundRect(ctx, W/2 - 170, 36, 340, 100, 56);
+  ctx.fill();
+  // island live indicator + text
+  ctx.fillStyle = '#6BC67E';
+  ctx.beginPath(); ctx.arc(W/2 - 120, 86, 12, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.font = '600 30px -apple-system,"Inter"';
+  ctx.textAlign = 'left';
+  ctx.fillText('Focus · 42:18', W/2 - 90, 96);
+
+  // status bar (time + icons area)
+  ctx.fillStyle = '#2E2E2E';
+  ctx.font = '600 36px -apple-system,"Inter"';
+  ctx.textAlign = 'left';
+  ctx.fillText('9:41', 80, 86);
+  ctx.textAlign = 'right';
+  ctx.fillText('􀊴 􀙜 100%', W - 80, 86);
+  ctx.textAlign = 'left';
+
+  // greeting
+  ctx.font = '500 38px "Inter"';
+  ctx.fillStyle = '#6B6B6B';
+  ctx.fillText('Good morning, Waleed', 80, 290);
+  ctx.font = '700 96px "Inter"';
+  ctx.fillStyle = '#2E2E2E';
+  ctx.fillText('Tuesday · ', 80, 410);
+  const tuesW = ctx.measureText('Tuesday · ').width;
+  ctx.fillStyle = '#4A9DBF';
+  ctx.fillText('April 21', 80 + tuesW, 410);
+
+  // ── MOMENTUM CARD ──
+  const momY = 470, momH = 310;
+  ctx.fillStyle = 'rgba(126, 200, 227, 0.25)';
+  roundRect(ctx, 80, momY, W - 160, momH, 60);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(74, 157, 191, 0.3)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // mom label
+  ctx.font = '600 26px "Inter"';
+  ctx.fillStyle = 'rgba(46, 107, 131, 0.7)';
+  ctx.fillText('WEEK MOMENTUM', 120, momY + 60);
+
+  // big stat
+  ctx.font = '700 78px "Inter"';
+  ctx.fillStyle = '#2E2E2E';
+  ctx.fillText('3h 15m', 120, momY + 150);
+  ctx.font = '500 32px "Inter"';
+  ctx.fillStyle = '#4A9DBF';
+  const statW = ctx.measureText('3h 15m').width;
+  ctx.fillText(' · today', 120 + statW, momY + 150);
+
+  // streak pill
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+  roundRect(ctx, W - 350, momY + 50, 250, 58, 29);
+  ctx.fill();
+  ctx.fillStyle = '#F57C2A';
+  ctx.font = '600 26px "Inter"';
+  ctx.fillText('🔥 Day 3 on plan', W - 330, momY + 86);
+
+  // wave
+  ctx.strokeStyle = '#4A9DBF';
+  ctx.lineWidth = 6;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  const waveY = momY + 230;
+  ctx.moveTo(120, waveY + 10);
+  ctx.bezierCurveTo(260, waveY - 5, 400, waveY + 20, 540, waveY);
+  ctx.bezierCurveTo(680, waveY - 20, 820, waveY + 10, 960, waveY - 5);
+  ctx.bezierCurveTo(1020, waveY - 10, 1050, waveY - 20, 1050, waveY - 25);
+  ctx.stroke();
+  // today dot
+  ctx.fillStyle = '#FF9F43';
+  ctx.beginPath(); ctx.arc(400, waveY + 10, 16, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 6;
+  ctx.stroke();
+
+  // ── RIGHT NOW LABEL ──
+  ctx.font = '600 28px "Inter"';
+  ctx.fillStyle = '#4A9DBF';
+  ctx.fillText('● RIGHT NOW', 120, 870);
+
+  // ── NOW CARD (cream, the hero) ──
+  const nowY = 900, nowH = 680;
+  const nowGrad = ctx.createLinearGradient(0, nowY, 0, nowY + nowH);
+  nowGrad.addColorStop(0, '#FFF8F1');
+  nowGrad.addColorStop(1, '#FAEEDC');
+  ctx.fillStyle = nowGrad;
+  roundRect(ctx, 80, nowY, W - 160, nowH, 70);
+  ctx.fill();
+  ctx.strokeStyle = '#EDE0D4';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // subtle orange halo
+  const halo = ctx.createRadialGradient(W - 240, nowY + 100, 20, W - 240, nowY + 100, 400);
+  halo.addColorStop(0, 'rgba(255, 159, 67, 0.22)');
+  halo.addColorStop(1, 'rgba(255, 159, 67, 0)');
+  ctx.fillStyle = halo;
+  ctx.beginPath();
+  roundRect(ctx, 80, nowY, W - 160, nowH, 70);
+  ctx.fill();
+
+  // src line
+  ctx.font = '500 26px "Inter"';
+  ctx.fillStyle = '#A0A0A0';
+  ctx.fillText('⇌  BLACKBOARD · MARKETING FUNDAMENTALS', 130, nowY + 70);
+
+  // title
+  ctx.font = '700 72px "Inter"';
+  ctx.fillStyle = '#2E2E2E';
+  ctx.fillText('Marketing paper', 130, nowY + 170);
+  ctx.fillText('— outline', 130, nowY + 250);
+
+  // sub
+  ctx.font = '400 32px "Inter"';
+  ctx.fillStyle = '#6B6B6B';
+  wrapText(ctx, '6 headings, one line each. Don\u2019t write — just the skeleton.', 130, nowY + 320, W - 260, 42);
+  ctx.font = '700 32px "Inter"';
+  ctx.fillStyle = '#2E2E2E';
+  wrapText(ctx, '87 minutes and you\u2019re past the hardest part of your week.', 130, nowY + 410, W - 260, 42);
+
+  // pills
+  drawPill(ctx, 130, nowY + 500, '⏱ 90 min', '#fff', '#2E2E2E');
+  drawPill(ctx, 350, nowY + 500, '3 days left', 'rgba(255,159,67,0.15)', '#F57C2A');
+  drawPill(ctx, 600, nowY + 500, '1 of 4 steps', '#fff', '#2E2E2E');
+
+  // CTA button
+  const btnGrad = ctx.createLinearGradient(130, 0, W - 130, 0);
+  btnGrad.addColorStop(0, '#FF9F43');
+  btnGrad.addColorStop(1, '#F57C2A');
+  ctx.fillStyle = btnGrad;
+  roundRect(ctx, 130, nowY + 570, W - 260, 100, 50);
+  ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.font = '600 42px "Inter"';
+  ctx.textAlign = 'center';
+  ctx.fillText('Start focus  →', W/2, nowY + 635);
+  ctx.textAlign = 'left';
+
+  // ── NEXT UP label ──
+  ctx.font = '600 28px "Inter"';
+  ctx.fillStyle = '#4A9DBF';
+  ctx.fillText('NEXT UP', 120, 1680);
+
+  // queue row 1 (Econ)
+  drawQueueRow(ctx, 80, 1710, '14:00', '45m', 'Econ reading — ch. 7–8', '45 min · light, after lunch', false);
+  drawQueueRow(ctx, 80, 1890, '16:30', '30m', 'Finance team sync', '30 min · bring 2 questions', false);
+  drawQueueRow(ctx, 80, 2070, '08:42', '', 'Reply to Prof Chen', 'done this morning · nice move', true);
+
+  // ── Tab bar ──
+  const tabY = 2320, tabH = 160;
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
+  roundRect(ctx, 80, tabY, W - 160, tabH, 56);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(74, 157, 191, 0.15)';
+  ctx.stroke();
+  drawTab(ctx, 80 + (W-160)*0.125, tabY + tabH/2, 'Today', true);
+  drawTab(ctx, 80 + (W-160)*0.375, tabY + tabH/2, 'Week', false);
+  drawTab(ctx, 80 + (W-160)*0.625, tabY + tabH/2, 'Classes', false);
+  drawTab(ctx, 80 + (W-160)*0.875, tabY + tabH/2, 'Sources', false);
+
+  return c;
+}
+
+function roundRect(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.arcTo(x+w, y, x+w, y+h, r);
+  ctx.arcTo(x+w, y+h, x, y+h, r);
+  ctx.arcTo(x, y+h, x, y, r);
+  ctx.arcTo(x, y, x+w, y, r);
+  ctx.closePath();
+}
+
+function wrapText(ctx, text, x, y, maxW, lh){
+  const words = text.split(' ');
+  let line = '';
+  let yy = y;
+  for(const w of words){
+    const test = line + w + ' ';
+    if(ctx.measureText(test).width > maxW && line){
+      ctx.fillText(line, x, yy);
+      line = w + ' ';
+      yy += lh;
+    }else{
+      line = test;
+    }
+  }
+  ctx.fillText(line, x, yy);
+}
+
+function drawPill(ctx, x, y, text, bg, fg){
+  ctx.font = '600 24px "Inter"';
+  const tw = ctx.measureText(text).width;
+  ctx.fillStyle = bg;
+  roundRect(ctx, x, y, tw + 40, 56, 28);
+  ctx.fill();
+  ctx.strokeStyle = '#EDE0D4';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  ctx.fillStyle = fg;
+  ctx.fillText(text, x + 20, y + 36);
+}
+
+function drawQueueRow(ctx, x, y, time, dur, title, sub, done){
+  const w = 1010, h = 150;
+  ctx.fillStyle = '#fff';
+  roundRect(ctx, x, y, w, h, 48);
+  ctx.fill();
+  ctx.strokeStyle = '#E0EDF5';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // time
+  ctx.font = '700 32px "Inter"';
+  ctx.fillStyle = done ? '#A0A0A0' : '#4A9DBF';
+  ctx.fillText(time, x + 40, y + 62);
+  if(dur){
+    ctx.font = '500 22px "Inter"';
+    ctx.fillStyle = '#A0A0A0';
+    ctx.fillText(dur, x + 40, y + 100);
+  }
+
+  // title + sub
+  ctx.font = `700 34px "Inter"`;
+  ctx.fillStyle = done ? '#A0A0A0' : '#2E2E2E';
+  ctx.fillText(title, x + 200, y + 60);
+  if(done){
+    // strikethrough
+    const tw = ctx.measureText(title).width;
+    ctx.strokeStyle = '#A0A0A0';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(x + 200, y + 55);
+    ctx.lineTo(x + 200 + tw, y + 55);
+    ctx.stroke();
+  }
+  ctx.font = '400 26px "Inter"';
+  ctx.fillStyle = '#6B6B6B';
+  ctx.fillText(sub, x + 200, y + 105);
+
+  // badge
+  ctx.fillStyle = done ? 'rgba(107, 198, 126, 0.2)' : '#EAF4FB';
+  ctx.beginPath();
+  ctx.arc(x + w - 80, y + h/2, 40, 0, Math.PI*2);
+  ctx.fill();
+  ctx.fillStyle = done ? '#4A8C5C' : '#4A9DBF';
+  ctx.font = '700 30px "Inter"';
+  ctx.textAlign = 'center';
+  ctx.fillText(done ? '✓' : '👥', x + w - 80, y + h/2 + 12);
+  ctx.textAlign = 'left';
+}
+
+function drawTab(ctx, x, y, label, active){
+  ctx.fillStyle = active ? '#EAF4FB' : 'transparent';
+  if(active){
+    ctx.beginPath();
+    ctx.arc(x, y - 18, 36, 0, Math.PI*2);
+    ctx.fill();
+  }
+  ctx.font = '500 22px "Inter"';
+  ctx.fillStyle = active ? '#4A9DBF' : '#A0A0A0';
+  ctx.textAlign = 'center';
+  ctx.fillText(label, x, y + 40);
+  ctx.textAlign = 'left';
+}
+
+// ═══════════════════════════════════════════════════════
+// 3D SCENE
+// ═══════════════════════════════════════════════════════
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+renderer.setPixelRatio(Math.min(2, window.devicePixelRatio));
+renderer.setSize(innerWidth, innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+
+// studio gradient background (warm cream → dark)
+const bgCanvas = document.createElement('canvas');
+bgCanvas.width = 1024; bgCanvas.height = 1024;
+const bgCtx = bgCanvas.getContext('2d');
+const bgg = bgCtx.createRadialGradient(512, 380, 100, 512, 512, 900);
+bgg.addColorStop(0, '#E8DDC8');
+bgg.addColorStop(0.5, '#9B8670');
+bgg.addColorStop(1, '#2A241D');
+bgCtx.fillStyle = bgg;
+bgCtx.fillRect(0, 0, 1024, 1024);
+scene.background = new THREE.CanvasTexture(bgCanvas);
+scene.background.colorSpace = THREE.SRGBColorSpace;
+
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+const camera = new THREE.PerspectiveCamera(28, innerWidth/innerHeight, 0.1, 100);
+camera.position.set(0, 1.2, 9);
+camera.lookAt(0, 0.2, 0);
+
+// ─── lighting — 3-point studio ───
+// key: strong warm from top-right
+const key = new THREE.DirectionalLight(0xfff3dc, 4.0);
+key.position.set(5, 8, 6);
+key.castShadow = true;
+key.shadow.mapSize.set(4096, 4096);
+key.shadow.camera.near = 0.5; key.shadow.camera.far = 30;
+key.shadow.camera.left = -8; key.shadow.camera.right = 8;
+key.shadow.camera.top = 8; key.shadow.camera.bottom = -8;
+key.shadow.bias = -0.0003;
+key.shadow.radius = 6;
+scene.add(key);
+
+// fill: cool from left
+const fill = new THREE.DirectionalLight(0xb4d8ff, 1.1);
+fill.position.set(-5, 3, 4);
+scene.add(fill);
+
+// rim: warm amber from back
+const rim = new THREE.SpotLight(0xff9f43, 6, 20, Math.PI/6, 0.4, 1);
+rim.position.set(-2, 5, -6);
+rim.target.position.set(0, 0, 0);
+scene.add(rim);
+scene.add(rim.target);
+
+scene.add(new THREE.AmbientLight(0xfff5e6, 0.25));
+
+// ─── ground plane (soft, receives shadow) ───
+const groundMat = new THREE.MeshPhysicalMaterial({
+  color: 0x2a241d,
+  roughness: 0.4,
+  metalness: 0.1,
+  clearcoat: 0.3,
+});
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(30, 30), groundMat);
+ground.rotation.x = -Math.PI/2;
+ground.position.y = -1.35;
+ground.receiveShadow = true;
+scene.add(ground);
+
+// ═══════════════════════════════════════════════════════
+// iPHONE
+// Proportions: iPhone 15 Pro ~ 70.9 × 146.6 × 8.25mm → normalize
+// width = 1.0, height = 2.07, depth = 0.116
+// ═══════════════════════════════════════════════════════
+const phone = new THREE.Group();
+scene.add(phone);
+
+const PH_W = 1.4;
+const PH_H = 2.9;
+const PH_D = 0.16;
+
+// body — rounded box (natural titanium)
+function roundedBox(w, h, d, r, segs=6){
+  const shape = new THREE.Shape();
+  const x = -w/2, y = -h/2;
+  shape.moveTo(x + r, y);
+  shape.lineTo(x + w - r, y);
+  shape.quadraticCurveTo(x + w, y, x + w, y + r);
+  shape.lineTo(x + w, y + h - r);
+  shape.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  shape.lineTo(x + r, y + h);
+  shape.quadraticCurveTo(x, y + h, x, y + h - r);
+  shape.lineTo(x, y + r);
+  shape.quadraticCurveTo(x, y, x + r, y);
+  const extrude = {
+    depth: d,
+    bevelEnabled: true,
+    bevelSize: 0.015,
+    bevelThickness: 0.015,
+    bevelSegments: 4,
+    curveSegments: segs,
+  };
+  return new THREE.ExtrudeGeometry(shape, extrude);
+}
+
+// body — extruded rounded rect (titanium). Z extends from -PH_D to +0.015 (bevel).
+const bodyGeom = roundedBox(PH_W, PH_H, PH_D, 0.18, 16);
+const bodyMat = new THREE.MeshPhysicalMaterial({
+  color: 0x3a3a42,
+  metalness: 0.85,
+  roughness: 0.35,
+  clearcoat: 0.3,
+  clearcoatRoughness: 0.4,
+});
+const body = new THREE.Mesh(bodyGeom, bodyMat);
+body.castShadow = true;
+body.receiveShadow = true;
+phone.add(body);
+
+// Black glass face (flat plane covering the front — this is "the glass before the screen")
+const glassFace = new THREE.Mesh(
+  new THREE.PlaneGeometry(PH_W - 0.06, PH_H - 0.06),
+  new THREE.MeshPhysicalMaterial({ color: 0x050508, metalness: 0.1, roughness: 0.15, clearcoat: 1, clearcoatRoughness: 0.05 })
+);
+glassFace.position.z = PH_D + 0.02;  // clearly beyond bevel
+glassFace.castShadow = true;
+glassFace.receiveShadow = true;
+phone.add(glassFace);
+
+// screen (Leva UI texture)
+const uiCanvas = paintLevaScreen();
+const uiTex = new THREE.CanvasTexture(uiCanvas);
+uiTex.colorSpace = THREE.SRGBColorSpace;
+uiTex.anisotropy = 16;
+uiTex.minFilter = THREE.LinearMipmapLinearFilter;
+uiTex.magFilter = THREE.LinearFilter;
+uiTex.generateMipmaps = true;
+uiTex.needsUpdate = true;
+
+const screenW = PH_W - 0.12;
+const screenH = PH_H - 0.12;
+const screen = new THREE.Mesh(
+  new THREE.PlaneGeometry(screenW, screenH),
+  new THREE.MeshBasicMaterial({ map: uiTex, toneMapped: false })
+);
+screen.position.z = PH_D + 0.025;  // clearly in front of body + glass
+phone.add(screen);
+
+// subtle glass highlight (specular glint on top-left of screen)
+const hiCanvas = document.createElement('canvas');
+hiCanvas.width = 512; hiCanvas.height = 1024;
+const hiCtx = hiCanvas.getContext('2d');
+const hiG = hiCtx.createLinearGradient(0, 0, 512, 1024);
+hiG.addColorStop(0, 'rgba(255,255,255,0.22)');
+hiG.addColorStop(0.25, 'rgba(255,255,255,0.06)');
+hiG.addColorStop(0.6, 'rgba(255,255,255,0)');
+hiG.addColorStop(1, 'rgba(255,255,255,0)');
+hiCtx.fillStyle = hiG;
+hiCtx.fillRect(0, 0, 512, 1024);
+const highlightTex = new THREE.CanvasTexture(hiCanvas);
+highlightTex.colorSpace = THREE.SRGBColorSpace;
+const highlight = new THREE.Mesh(
+  new THREE.PlaneGeometry(screenW, screenH),
+  new THREE.MeshBasicMaterial({ map: highlightTex, transparent: true, opacity: 0.7, depthWrite: false, toneMapped: false })
+);
+highlight.position.z = PH_D + 0.028;
+phone.add(highlight);
+
+// camera bump on back — nope, keep front-facing clean
+
+// ─── position + tilt the phone ───
+phone.rotation.y = -0.22;
+phone.rotation.x = 0.08;
+phone.rotation.z = 0.02;
+phone.position.y = 0.15;
+
+// ─── subtle floor reflection setup: a dark plane with slight gloss ───
+
+// ─── contact shadow — a soft dark blob right under the phone ───
+const shadowCanvas = document.createElement('canvas');
+shadowCanvas.width = 512; shadowCanvas.height = 512;
+const sCtx = shadowCanvas.getContext('2d');
+const sgrad = sCtx.createRadialGradient(256, 256, 20, 256, 256, 240);
+sgrad.addColorStop(0, 'rgba(0,0,0,0.65)');
+sgrad.addColorStop(1, 'rgba(0,0,0,0)');
+sCtx.fillStyle = sgrad;
+sCtx.fillRect(0, 0, 512, 512);
+const contactShadow = new THREE.Mesh(
+  new THREE.PlaneGeometry(2.4, 3.8),
+  new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(shadowCanvas), transparent: true, depthWrite: false })
+);
+contactShadow.rotation.x = -Math.PI/2;
+contactShadow.position.y = -1.34;
+scene.add(contactShadow);
+
+// ═══════════════════════════════════════════════════════
+// render loop (phone floats with very subtle bob)
+// ═══════════════════════════════════════════════════════
+let t = 0;
+function animate(){
+  requestAnimationFrame(animate);
+  t += 0.006;
+  phone.position.y = 0.15 + Math.sin(t * 1.5) * 0.025;
+  phone.rotation.y = -0.22 + Math.sin(t * 0.8) * 0.015;
+  renderer.render(scene, camera);
+  if(!window.sceneReady && t > 0.35) window.sceneReady = true;
+}
+animate();
+</script></body></html>
