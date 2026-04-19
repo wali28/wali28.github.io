@@ -99,6 +99,8 @@ function guessType(url, name){
   if (ext === 'pdf') return 'pdf';
   if (['htm','html'].includes(ext)) return 'html';
   if (['md','markdown'].includes(ext)) return 'md';
+  if (ext === 'csv') return 'csv';
+  if (ext === 'txt') return 'txt';
   if (['zip'].includes(ext)) return 'zip';
   return 'file';
 }
@@ -432,10 +434,11 @@ function renderInspector(t){
 function artItemHTML(a){
   const type = (a.type || guessType(a.url, a.name)).toLowerCase();
   const name = a.name || a.url?.split('/').pop() || 'file';
-  const click = (type === 'image' || type === 'svg') ? `window.openLightbox('${esc(a.url)}')` : (type === 'pdf' ? `window.openLightbox('${esc(a.url)}','pdf')` : `window.open('${esc(a.url)}','_blank')`);
+  const viewable = ['image','svg','pdf','md','markdown','txt','csv','html','htm'];
+  const click = viewable.includes(type) ? `window.openLightbox('${esc(a.url)}','${type}')` : `window.open('${esc(a.url)}','_blank')`;
   const inner = (type === 'image' || type === 'svg')
     ? `<img src="${esc(a.url)}" alt="" loading="lazy"/>`
-    : `<div class="ico">${type==='pdf'?'📄':type==='md'?'📝':type==='link'?'→':type==='html'?'⌘':'📎'}</div>`;
+    : `<div class="ico">${type==='pdf'?'📄':type==='md'?'📝':type==='csv'?'▦':type==='txt'?'≡':type==='link'?'→':type==='html'?'⌘':'📎'}</div>`;
   const tag = type.slice(0, 4).toUpperCase();
   return `<div class="insp-art-wrap"><div class="insp-art" onclick="${click}">
     <div class="thumb">${inner}</div>
