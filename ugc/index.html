@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>UGC ad creative · Waleed Imran</title>
+<meta name="description" content="AI-driven UGC ad creative for DTC brands — 20 variations per batch, 48h turnaround, €1–3k per batch." />
+<meta property="og:title" content="UGC Ad Creative" />
+<meta property="og:description" content="20 ad variations per batch. 48-hour delivery. For DTC brands who test creative weekly." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fraunces:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="../lib/supabase.min.js"></script>
+<style>
+:root{
+  --bg:#0a0a0d; --bg-2:#12121a;
+  --panel:rgba(255,255,255,0.04);
+  --ink:#f5f5f7; --ink-2:#b8b8c0; --ink-3:#7a7a85;
+  --line:rgba(255,255,255,0.08);
+  --accent:#d9b07a; --blue:#7EC8E3; --orange:#FF9F43; --green:#6BC67E;
+  --ease:cubic-bezier(0.22,1,0.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:var(--bg);color:var(--ink);font-family:"Inter",-apple-system,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+body{overflow-x:hidden;line-height:1.5}
+::selection{background:var(--accent);color:#000}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+
+.mesh{position:fixed;inset:0;z-index:0;opacity:0.3;pointer-events:none;filter:blur(80px)}
+.mesh::before,.mesh::after{content:"";position:absolute;border-radius:50%}
+.mesh::before{width:55vw;height:55vw;top:-15vw;right:-15vw;background:#1f5f7f;animation:d1 26s ease-in-out infinite alternate}
+.mesh::after{width:45vw;height:45vw;bottom:-15vw;left:-15vw;background:#d9b07a;opacity:0.5;animation:d2 22s ease-in-out infinite alternate}
+@keyframes d1{to{transform:translate(10vw,12vw) scale(1.1)}}
+@keyframes d2{to{transform:translate(8vw,-10vw) scale(0.9)}}
+.grain{position:fixed;inset:0;z-index:1;opacity:0.05;mix-blend-mode:overlay;pointer-events:none;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3"/></filter><rect width="220" height="220" filter="url(%23n)"/></svg>')}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:50;padding:20px 40px;display:flex;justify-content:space-between;align-items:center;transition:all 0.3s}
+nav.s{background:rgba(10,10,13,0.75);backdrop-filter:blur(20px) saturate(1.3);border-bottom:1px solid var(--line)}
+.logo{font-family:"Fraunces";font-weight:500;font-size:20px;display:flex;align-items:center;gap:10px}
+.logo-mark{width:12px;height:12px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent)}
+nav a.back{font-size:13px;color:var(--ink-2);padding:8px 16px;border:1px solid var(--line);border-radius:100px;font-weight:500;transition:all 0.2s}
+nav a.back:hover{color:var(--ink);border-color:rgba(255,255,255,0.2)}
+
+.hero{position:relative;z-index:5;min-height:100vh;display:grid;place-items:center;padding:120px 40px 80px}
+.hero-inner{max-width:980px;text-align:center}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;padding:7px 16px;border:1px solid var(--line);background:rgba(255,255,255,0.04);border-radius:100px;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-2)}
+.eyebrow .dot{width:6px;height:6px;border-radius:3px;background:var(--green);box-shadow:0 0 10px var(--green)}
+h1.big{font-family:"Fraunces";font-weight:400;font-size:clamp(52px,9vw,132px);line-height:0.96;letter-spacing:-0.04em;margin:22px 0 0;font-style:italic}
+h1.big .sans{font-family:"Inter";font-style:normal;font-weight:700;letter-spacing:-0.045em}
+h1.big em{color:var(--accent)}
+.hero-sub{margin-top:26px;font-size:18px;color:var(--ink-2);max-width:620px;margin-left:auto;margin-right:auto;line-height:1.6}
+.ctas{margin-top:34px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn{padding:14px 26px;border-radius:100px;font-size:14px;font-weight:600;border:1px solid var(--line);background:rgba(255,255,255,0.04);color:var(--ink);transition:all 0.3s var(--ease)}
+.btn:hover{background:rgba(255,255,255,0.1);transform:translateY(-2px)}
+.btn.primary{background:var(--accent);color:#000;border-color:var(--accent);box-shadow:0 12px 28px rgba(217,176,122,0.3)}
+.btn.primary:hover{box-shadow:0 16px 36px rgba(217,176,122,0.45)}
+.hero-meta{margin-top:44px;display:flex;gap:40px;justify-content:center;flex-wrap:wrap}
+.hero-meta div{text-align:center}
+.hero-meta .n{font-family:"Fraunces";font-style:italic;font-size:36px;font-weight:500;color:var(--accent);line-height:1}
+.hero-meta .l{font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:var(--ink-3);margin-top:6px;font-weight:600}
+
+section.block{position:relative;z-index:5;padding:100px 40px}
+.block-inner{max-width:1300px;margin:0 auto}
+.block-head{margin-bottom:48px;max-width:720px}
+.block-num{font-family:"Fraunces";font-style:italic;font-size:13px;color:var(--accent);letter-spacing:0.2em;font-weight:500;display:inline-block;margin-bottom:12px;text-transform:uppercase}
+.block-head h2{font-family:"Fraunces";font-weight:400;font-size:clamp(40px,6vw,72px);line-height:0.98;letter-spacing:-0.03em;margin-bottom:14px}
+.block-head h2 em{font-style:italic}
+.block-head h2 .sans{font-family:"Inter";font-weight:600;font-style:normal;letter-spacing:-0.04em}
+.block-head p{font-size:17px;color:var(--ink-2);line-height:1.6;max-width:580px}
+
+/* ───── Gallery ───── */
+.brand{margin-bottom:64px}
+.brand-hdr{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+.brand-name{font-family:"Fraunces";font-style:italic;font-size:32px;font-weight:500;letter-spacing:-0.02em}
+.brand-tag{font-size:12px;color:var(--ink-3);letter-spacing:0.14em;text-transform:uppercase;font-weight:600}
+.brand-desc{font-size:14px;color:var(--ink-2);line-height:1.55;margin-bottom:20px;max-width:600px}
+.brand-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.shot{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;cursor:zoom-in;transition:transform 0.3s var(--ease),border-color 0.2s}
+.shot:hover{transform:translateY(-3px);border-color:rgba(217,176,122,0.3)}
+.shot-img{aspect-ratio:4/5;overflow:hidden;position:relative;background:#0a0a0d}
+.shot-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.6s var(--ease)}
+.shot:hover .shot-img img{transform:scale(1.04)}
+.shot-meta{padding:14px 16px 16px}
+.shot-hook{font-size:14px;font-weight:600;line-height:1.4;margin-bottom:4px;letter-spacing:-0.01em}
+.shot-tag{font-size:10.5px;color:var(--ink-3);letter-spacing:0.1em;text-transform:uppercase;font-weight:600}
+
+/* ───── Pricing ───── */
+.pricing{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+.price{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:32px;position:relative;overflow:hidden}
+.price.featured{border-color:rgba(217,176,122,0.4);background:rgba(217,176,122,0.04)}
+.price.featured::before{content:"Most popular";position:absolute;top:16px;right:16px;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;font-weight:700;color:var(--accent)}
+.price .p-name{font-family:"Fraunces";font-style:italic;font-size:24px;font-weight:500}
+.price .p-amount{margin:16px 0 4px;display:flex;align-items:baseline;gap:4px}
+.price .p-amount .n{font-size:44px;font-weight:700;letter-spacing:-0.025em;font-family:"Fraunces";font-style:italic}
+.price .p-amount .u{font-size:14px;color:var(--ink-3)}
+.price .p-blurb{font-size:13px;color:var(--ink-3);margin-bottom:20px;line-height:1.5}
+.price ul{list-style:none;margin:20px 0;padding:0;display:flex;flex-direction:column;gap:9px}
+.price li{font-size:13.5px;color:var(--ink-2);padding-left:20px;position:relative;line-height:1.5}
+.price li::before{content:"✓";position:absolute;left:0;color:var(--green);font-weight:700}
+.price .p-cta{display:block;width:100%;padding:12px;border-radius:10px;font-size:13px;font-weight:600;text-align:center;margin-top:8px;cursor:pointer;transition:all 0.2s;border:1px solid var(--line);background:transparent;color:var(--ink)}
+.price .p-cta:hover{border-color:rgba(255,255,255,0.25)}
+.price.featured .p-cta{background:var(--accent);color:#000;border-color:var(--accent)}
+
+/* ───── Process ───── */
+.process-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media(max-width:860px){.process-grid{grid-template-columns:1fr 1fr}}
+.step{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px}
+.step-num{font-family:"Fraunces";font-style:italic;font-size:42px;color:var(--accent);line-height:1;margin-bottom:12px;font-weight:300}
+.step h4{font-size:15px;font-weight:600;letter-spacing:-0.01em;margin-bottom:6px}
+.step p{font-size:12.5px;color:var(--ink-2);line-height:1.55}
+
+/* ───── Book form ───── */
+.book{padding:100px 40px;text-align:center}
+.book-inner{max-width:720px;margin:0 auto;background:linear-gradient(160deg,rgba(217,176,122,0.08) 0%,rgba(31,95,127,0.06) 100%);border:1px solid var(--line);border-radius:28px;padding:60px 36px;position:relative;overflow:hidden}
+.book-inner::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(217,176,122,0.1) 0%,transparent 60%);pointer-events:none}
+.book h2{font-family:"Fraunces";font-weight:400;font-size:clamp(36px,5vw,60px);line-height:0.98;letter-spacing:-0.03em;margin-bottom:14px;font-style:italic;position:relative;z-index:1}
+.book h2 em{color:var(--accent)}
+.book h2 .sans{font-family:"Inter";font-style:normal;font-weight:700}
+.book p{font-size:15px;color:var(--ink-2);margin-bottom:28px;max-width:520px;margin-left:auto;margin-right:auto;line-height:1.6;position:relative;z-index:1}
+.book-form{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:10px;text-align:left;position:relative;z-index:1}
+.book-form label{font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:4px}
+.book-form input,.book-form textarea,.book-form select{background:rgba(255,255,255,0.04);border:1px solid var(--line);color:var(--ink);padding:11px 14px;border-radius:10px;font-family:inherit;font-size:14px;outline:0;width:100%;transition:border-color 0.2s}
+.book-form input:focus,.book-form textarea:focus,.book-form select:focus{border-color:var(--accent)}
+.book-form textarea{min-height:100px;resize:vertical;line-height:1.5}
+.book-form .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:560px){.book-form .row{grid-template-columns:1fr}}
+.book-submit{background:var(--accent);color:#000;border:0;padding:14px;border-radius:12px;font-size:14px;font-weight:600;margin-top:4px;cursor:pointer;transition:all 0.3s var(--ease);box-shadow:0 10px 24px rgba(217,176,122,0.25)}
+.book-submit:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 14px 32px rgba(217,176,122,0.4)}
+.book-submit:disabled{opacity:0.6;cursor:wait}
+.book-toast{margin-top:14px;padding:12px 16px;border-radius:12px;font-size:13px;display:none}
+.book-toast.ok{display:block;background:rgba(107,198,126,0.12);border:1px solid rgba(107,198,126,0.35);color:#b8e8c1}
+.book-toast.err{display:block;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.35);color:#f7b5b5}
+
+footer{padding:40px;border-top:1px solid var(--line);text-align:center;color:var(--ink-3);font-size:12px;position:relative;z-index:5;letter-spacing:0.02em}
+
+/* ───── Lightbox ───── */
+.lb{position:fixed;inset:0;background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);z-index:100;display:none;align-items:center;justify-content:center;padding:40px;cursor:zoom-out}
+.lb.show{display:flex}
+.lb img{max-width:92vw;max-height:92vh;border-radius:8px;box-shadow:0 30px 80px rgba(0,0,0,0.6)}
+</style>
+</head>
+<body>
+
+<div class="mesh"></div>
+<div class="grain"></div>
+
+<nav id="nav">
+  <div class="logo"><div class="logo-mark"></div>UGC Creative</div>
+  <a class="back" href="../">← portfolio</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow"><span class="dot"></span>Taking 3 brands · April – May 2026</div>
+    <h1 class="big"><span class="sans">Ad creative</span><br><em>at the speed</em><br>of testing.</h1>
+    <p class="hero-sub">20 ad variations per batch. 48-hour turnaround. For DTC brands who know the only way through Meta + TikTok is testing creative weekly — not monthly.</p>
+    <div class="ctas">
+      <button class="btn primary" onclick="document.getElementById('book').scrollIntoView({behavior:'smooth'})">Book a batch →</button>
+      <button class="btn" onclick="document.getElementById('work').scrollIntoView({behavior:'smooth'})">See samples</button>
+    </div>
+    <div class="hero-meta">
+      <div><div class="n">20</div><div class="l">variations/batch</div></div>
+      <div><div class="n">48h</div><div class="l">turnaround</div></div>
+      <div><div class="n">€1–3k</div><div class="l">per batch</div></div>
+      <div><div class="n">4</div><div class="l">angles tested</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="work">
+  <div class="block-inner">
+    <div class="block-head">
+      <span class="block-num">01 — Samples</span>
+      <h2>Four brands. <em>Eight hero shots.</em></h2>
+      <p>These are real generated samples across four archetypes — pick the one that matches your brand, scale the approach for your batch.</p>
+    </div>
+
+    <div class="brand">
+      <div class="brand-hdr"><div class="brand-name">AURA</div><div class="brand-tag">Skincare · minimalist · warm</div></div>
+      <div class="brand-desc">Clean-beauty / natural skincare. Amber + cream palette, morning-light aesthetic, marble + linen textures. Angle: "your morning ritual."</div>
+      <div class="brand-grid">
+        <div class="shot" onclick="window.lb('samples/aura-1.jpg')"><div class="shot-img"><img src="samples/aura-1.jpg" alt="AURA product shot"/></div><div class="shot-meta"><div class="shot-hook">"Your 6am, different."</div><div class="shot-tag">Product · still life</div></div></div>
+        <div class="shot" onclick="window.lb('samples/aura-2.jpg')"><div class="shot-img"><img src="samples/aura-2.jpg" alt="AURA UGC"/></div><div class="shot-meta"><div class="shot-hook">"The only step I never skip."</div><div class="shot-tag">UGC · POV</div></div></div>
+      </div>
+    </div>
+
+    <div class="brand">
+      <div class="brand-hdr"><div class="brand-name">BOLT</div><div class="brand-tag">Supplements · performance · bold</div></div>
+      <div class="brand-desc">Pre-workout / electrolytes / performance nutrition. Matte black + electric orange, dramatic spotlighting, gym/warehouse settings. Angle: "the 5am kind."</div>
+      <div class="brand-grid">
+        <div class="shot" onclick="window.lb('samples/bolt-1.jpg')"><div class="shot-img"><img src="samples/bolt-1.jpg" alt="BOLT product"/></div><div class="shot-meta"><div class="shot-hook">"Before your alarm."</div><div class="shot-tag">Product · moody</div></div></div>
+        <div class="shot" onclick="window.lb('samples/bolt-2.jpg')"><div class="shot-img"><img src="samples/bolt-2.jpg" alt="BOLT athlete"/></div><div class="shot-meta"><div class="shot-hook">"18 minutes · no mercy."</div><div class="shot-tag">UGC · in-action</div></div></div>
+      </div>
+    </div>
+
+    <div class="brand">
+      <div class="brand-hdr"><div class="brand-name">FRANC</div><div class="brand-tag">Menswear · architectural · muted</div></div>
+      <div class="brand-desc">Premium menswear essentials. Cream, olive, concrete. Architectural settings, long shadows, editorial menswear-catalog energy. Angle: "the everyday sweater."</div>
+      <div class="brand-grid">
+        <div class="shot" onclick="window.lb('samples/franc-1.jpg')"><div class="shot-img"><img src="samples/franc-1.jpg" alt="FRANC flatlay"/></div><div class="shot-meta"><div class="shot-hook">"The only knit you need."</div><div class="shot-tag">Flat lay · still life</div></div></div>
+        <div class="shot" onclick="window.lb('samples/franc-2.jpg')"><div class="shot-img"><img src="samples/franc-2.jpg" alt="FRANC lifestyle"/></div><div class="shot-meta"><div class="shot-hook">"Saturday uniform."</div><div class="shot-tag">Lifestyle · editorial</div></div></div>
+      </div>
+    </div>
+
+    <div class="brand">
+      <div class="brand-hdr"><div class="brand-name">PEBBLE</div><div class="brand-tag">Cold brew · cozy · approachable</div></div>
+      <div class="brand-desc">Cold brew / ready-to-drink coffee. Pastel mint + wood tones. Kitchen mornings + cafe mid-afternoons. Angle: "slow mornings, cold coffee."</div>
+      <div class="brand-grid">
+        <div class="shot" onclick="window.lb('samples/pebble-1.jpg')"><div class="shot-img"><img src="samples/pebble-1.jpg" alt="PEBBLE morning"/></div><div class="shot-meta"><div class="shot-hook">"Monday's new ritual."</div><div class="shot-tag">Lifestyle · kitchen</div></div></div>
+        <div class="shot" onclick="window.lb('samples/pebble-2.jpg')"><div class="shot-img"><img src="samples/pebble-2.jpg" alt="PEBBLE cafe"/></div><div class="shot-meta"><div class="shot-hook">"Cold brew, warm spot."</div><div class="shot-tag">UGC · cafe POV</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block">
+  <div class="block-inner">
+    <div class="block-head">
+      <span class="block-num">02 — How it works</span>
+      <h2>From brief to batch.<br><em>Four days.</em></h2>
+    </div>
+    <div class="process-grid">
+      <div class="step"><div class="step-num">01</div><h4>Brief intake</h4><p>Tell me your brand, your angle, which platform, what you're currently running that works / doesn't. 30-min kickoff.</p></div>
+      <div class="step"><div class="step-num">02</div><h4>Creative angles</h4><p>I return 4 tested angles within 24h — product-story / problem-hook / UGC-testimonial / lifestyle. You pick 2 or 3 to develop.</p></div>
+      <div class="step"><div class="step-num">03</div><h4>Batch production</h4><p>20 creatives across the chosen angles, delivered as 1:1, 4:5, and 9:16 exports. Labelled for your ad manager.</p></div>
+      <div class="step"><div class="step-num">04</div><h4>Test + iterate</h4><p>You run the batch. We review winners at day 14. Next batch iterates on the hooks that converted.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="block">
+  <div class="block-inner">
+    <div class="block-head">
+      <span class="block-num">03 — Pricing</span>
+      <h2>Three ways <em>to work.</em></h2>
+      <p>Pay per batch, or subscribe monthly for the creative-testing pace your ad account actually needs.</p>
+    </div>
+    <div class="pricing">
+      <div class="price">
+        <div class="p-name">One-off batch</div>
+        <div class="p-amount"><span class="n">€1,000</span><span class="u">/ batch</span></div>
+        <div class="p-blurb">Starter — test the approach before committing to a retainer.</div>
+        <ul>
+          <li>20 ad creatives, 1 brand</li>
+          <li>1 angle direction</li>
+          <li>3 aspect ratios per creative</li>
+          <li>48-hour turnaround</li>
+          <li>1 round of tweaks included</li>
+        </ul>
+        <button class="p-cta" onclick="document.getElementById('book').scrollIntoView({behavior:'smooth'})">Book this →</button>
+      </div>
+      <div class="price featured">
+        <div class="p-name">Subscription · standard</div>
+        <div class="p-amount"><span class="n">€2,500</span><span class="u">/ month</span></div>
+        <div class="p-blurb">2 fresh batches per month. The pace real DTC accounts need.</div>
+        <ul>
+          <li>40 creatives / month</li>
+          <li>Up to 3 angle directions per batch</li>
+          <li>Weekly creative reviews</li>
+          <li>Priority queue · 24–36h delivery</li>
+          <li>Unlimited tweaks</li>
+          <li>Pause / cancel anytime</li>
+        </ul>
+        <button class="p-cta" onclick="document.getElementById('book').scrollIntoView({behavior:'smooth'})">Book a call →</button>
+      </div>
+      <div class="price">
+        <div class="p-name">Subscription · scale</div>
+        <div class="p-amount"><span class="n">€5,000</span><span class="u">/ month</span></div>
+        <div class="p-blurb">For brands spending €30k+/mo on paid. Constant creative throughput.</div>
+        <ul>
+          <li>4 batches / month (80+ creatives)</li>
+          <li>Up to 4 angle directions per batch</li>
+          <li>Dedicated Slack channel</li>
+          <li>24h priority turnaround</li>
+          <li>Monthly creative-performance review</li>
+          <li>A/B test recommendations</li>
+        </ul>
+        <button class="p-cta" onclick="document.getElementById('book').scrollIntoView({behavior:'smooth'})">Book a call →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="book">
+  <div class="book-inner">
+    <h2>Brief me on <em>your brand.</em></h2>
+    <p>One form, 24-hour reply. No sales funnel.</p>
+    <form class="book-form" id="ugcForm">
+      <div class="row">
+        <div><label>Your name</label><input name="name" required placeholder="Alex" /></div>
+        <div><label>Email</label><input name="email" type="email" required placeholder="alex@brand.com" /></div>
+      </div>
+      <div><label>Brand name</label><input name="brand" required placeholder="Your brand" /></div>
+      <div><label>Package</label><select name="package">
+        <option>One-off batch (€1,000)</option>
+        <option>Subscription · Standard (€2,500/mo)</option>
+        <option>Subscription · Scale (€5,000/mo)</option>
+        <option>Not sure — let's talk</option>
+      </select></div>
+      <div><label>Tell me about the brand + what you need</label><textarea name="brief" required placeholder="What you sell, who buys it, what's working/not in your current creative, when you'd want first batch delivered…"></textarea></div>
+      <button type="submit" class="book-submit" id="ugcSubmit">Send brief →</button>
+      <div class="book-toast" id="ugcToast"></div>
+    </form>
+  </div>
+</section>
+
+<footer>© 2026 Waleed Imran · UGC Creative · Built on the portfolio Supabase.</footer>
+
+<div class="lb" id="lb"><img id="lbImg" alt="" /></div>
+
+<script>
+const nav = document.getElementById('nav');
+addEventListener('scroll', () => { nav.classList.toggle('s', scrollY > 40); });
+document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click', e => { const t = document.querySelector(a.getAttribute('href')); if (t) { e.preventDefault(); t.scrollIntoView({behavior:'smooth'}); } }));
+
+// lightbox
+window.lb = url => {
+  document.getElementById('lbImg').src = url;
+  document.getElementById('lb').classList.add('show');
+};
+document.getElementById('lb').addEventListener('click', () => document.getElementById('lb').classList.remove('show'));
+
+// form → Supabase portfolio_bookings (same as main site)
+const SUPABASE_URL = 'https://bniudmwlpaqqpthsgppv.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJuaXVkbXdscGFxcXB0aHNncHB2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMzYzNjcsImV4cCI6MjA4OTcxMjM2N30.WaNKfPUgUBv2HHt6KlbERVoTEGO2_YQnC4GlXCIxBhg';
+const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+const form = document.getElementById('ugcForm');
+const submit = document.getElementById('ugcSubmit');
+const toast = document.getElementById('ugcToast');
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+  submit.disabled = true;
+  submit.textContent = 'Sending…';
+  toast.className = 'book-toast';
+  const data = Object.fromEntries(new FormData(form));
+  const { error } = await supa.from('portfolio_bookings').insert({
+    name: data.name.trim(),
+    email: data.email.trim(),
+    service: `UGC — ${data.brand.trim()} · ${data.package}`,
+    budget: data.package,
+    brief: data.brief.trim(),
+    source: 'ugc-landing',
+  });
+  if (error) {
+    toast.className = 'book-toast err';
+    toast.textContent = 'Couldn\u2019t send. Email me directly: waleed.imran@edu.escp.eu';
+  } else {
+    toast.className = 'book-toast ok';
+    toast.innerHTML = 'Brief received. I\u2019ll reply within 24 hours.';
+    submit.textContent = 'Sent ✓';
+    form.reset();
+    setTimeout(() => { submit.disabled = false; submit.textContent = 'Send brief →'; }, 6000);
+    return;
+  }
+  submit.disabled = false;
+  submit.textContent = 'Send brief →';
+});
+</script>
+</body>
+</html>

@@ -8,315 +8,398 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:ital,wght@0,400;0,500;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <script src="../lib/supabase.min.js"></script>
 <style>
 :root{
-  --bg:#0a0a0d; --bg-2:#12121a;
+  --bg:#06070b; --bg-2:#0e0e14;
   --panel:rgba(255,255,255,0.04); --panel-2:rgba(255,255,255,0.06);
   --ink:#f5f5f7; --ink-2:#b8b8c0; --ink-3:#7a7a85;
   --line:rgba(255,255,255,0.08);
-  --accent:#d9b07a; --blue:#7EC8E3; --green:#6BC67E; --orange:#FF9F43; --red:#ef4444; --purple:#8a5cf6; --pink:#ec4899; --cyan:#06b6d4;
+  --accent:#e8a962; --fire:#ff7744; --neon-pink:#ff2e88; --neon-cyan:#00d9ff;
+  --blue:#7EC8E3; --green:#6BC67E; --orange:#FF9F43; --red:#ef4444; --purple:#8a5cf6; --pink:#ec4899; --cyan:#06b6d4;
   --ease:cubic-bezier(0.22,1,0.36,1);
-  --ease-back:cubic-bezier(0.68,-0.3,0.32,1.3);
 }
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{background:var(--bg);color:var(--ink);font-family:"Inter",-apple-system,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
-body{min-height:100vh;line-height:1.5}
+html,body{background:var(--bg);color:var(--ink);font-family:"Inter",-apple-system,system-ui,sans-serif;-webkit-font-smoothing:antialiased;font-feature-settings:"ss01"}
+body{min-height:100vh;line-height:1.5;overflow-x:hidden}
 ::selection{background:var(--accent);color:#000}
 a{color:inherit;text-decoration:none}
 button{font-family:inherit;cursor:pointer}
 
-.mesh{position:fixed;inset:0;z-index:0;opacity:0.22;pointer-events:none;filter:blur(80px)}
-.mesh::before,.mesh::after{content:"";position:absolute;border-radius:50%}
-.mesh::before{width:55vw;height:55vw;top:-15vw;right:-15vw;background:#1f5f7f}
-.mesh::after{width:45vw;height:45vw;bottom:-15vw;left:-15vw;background:#d9b07a;opacity:0.5}
+/* ═════════════ TOKYO CAMPFIRE SCENE ═════════════ */
+.scene{position:fixed;inset:0;z-index:1;transition:opacity 0.4s linear}
+.scene canvas{width:100%;height:100%;display:block}
+.grain{position:fixed;inset:0;z-index:3;opacity:0.05;mix-blend-mode:overlay;pointer-events:none;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3"/></filter><rect width="220" height="220" filter="url(%23n)"/></svg>')}
 
-/* nav */
-nav{position:sticky;top:0;z-index:40;padding:16px 40px;display:flex;justify-content:space-between;align-items:center;background:rgba(10,10,13,0.85);backdrop-filter:blur(20px) saturate(1.3);border-bottom:1px solid var(--line)}
+/* ═════════════ HERO ═════════════ */
+.hero{position:relative;z-index:10;height:100vh;display:grid;place-items:end center;padding:0 40px 80px;pointer-events:none}
+.hero-inner{max-width:1100px;text-align:center;pointer-events:auto}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:10px;padding:7px 16px;border:1px solid rgba(255,255,255,0.12);background:rgba(0,0,0,0.4);backdrop-filter:blur(12px);border-radius:100px;font-size:11px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:rgba(245,245,247,0.85)}
+.hero-eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--fire);box-shadow:0 0 12px var(--fire);animation:ember 1.8s ease-in-out infinite}
+@keyframes ember{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.55;transform:scale(0.85)}}
+.hero h1{font-family:"Fraunces";font-weight:400;font-size:clamp(56px,9vw,136px);line-height:0.96;letter-spacing:-0.04em;margin:22px 0 0;font-style:italic;color:#fff;text-shadow:0 8px 60px rgba(255,120,60,0.3)}
+.hero h1 .sans{font-family:"Inter";font-style:normal;font-weight:700;letter-spacing:-0.045em}
+.hero h1 em{color:var(--accent)}
+.hero .sub{margin-top:24px;font-size:17px;color:rgba(245,245,247,0.7);max-width:560px;margin-left:auto;margin-right:auto;line-height:1.6}
+.hero .scroll-hint{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);font-size:10px;letter-spacing:0.34em;text-transform:uppercase;color:rgba(255,255,255,0.5);font-weight:600;animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(5px)}}
+
+/* ═════════════ DASHBOARD ═════════════ */
+.dash-wrap{position:relative;z-index:10;padding:40px 40px 100px;min-height:100vh}
+.dash-bg{position:fixed;inset:0;z-index:2;background:linear-gradient(180deg,transparent 30vh,rgba(6,7,11,0.72) 50vh,rgba(6,7,11,0.92) 70vh);pointer-events:none;opacity:0;transition:opacity 0.5s}
+.dash-bg.show{opacity:1}
+
+nav{position:sticky;top:0;z-index:40;padding:16px 40px;display:flex;justify-content:space-between;align-items:center;background:rgba(6,7,11,0.85);backdrop-filter:blur(24px) saturate(1.4);border-bottom:1px solid var(--line);margin:0 -40px 32px}
 .logo{font-family:"Fraunces";font-weight:500;font-size:20px;display:flex;align-items:center;gap:10px;letter-spacing:-0.01em}
-.logo-mark{width:12px;height:12px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px rgba(217,176,122,0.5)}
+.logo-mark{width:11px;height:11px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent)}
 .logo-ver{margin-left:10px;font-size:10px;color:var(--ink-3);font-family:monospace;letter-spacing:0.08em;font-weight:400}
 .nav-actions{display:flex;gap:10px;align-items:center}
 .nav-actions a,.nav-actions button{font-size:13px;color:var(--ink-2);padding:8px 14px;border:1px solid var(--line);background:rgba(255,255,255,0.04);border-radius:100px;font-weight:500;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px}
-.nav-actions a:hover,.nav-actions button:hover{color:var(--ink);border-color:rgba(255,255,255,0.18)}
+.nav-actions a:hover,.nav-actions button:hover{color:var(--ink);border-color:rgba(255,255,255,0.2)}
 .nav-actions .new-task{background:var(--accent);color:#0a0a0d;border-color:var(--accent);font-weight:600}
-.nav-actions .new-task:hover{background:#e8c28a}
+.nav-actions .new-task:hover{background:#f2c58d}
 
-/* ───────────── AUTH GATE ───────────── */
-.gate{min-height:calc(100vh - 68px);display:grid;place-items:center;padding:40px;position:relative;z-index:5}
-.gate-card{max-width:480px;width:100%;background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:44px 40px;backdrop-filter:blur(20px);position:relative;overflow:hidden}
-.gate-card::before{content:"";position:absolute;top:-40%;right:-30%;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,var(--accent) 0%,transparent 70%);opacity:0.14;filter:blur(30px)}
-.gate-tag{font-family:"Fraunces";font-style:italic;font-size:12px;color:var(--accent);letter-spacing:0.22em;text-transform:uppercase;font-weight:500;position:relative;z-index:1}
-.gate-card h1{font-family:"Fraunces";font-weight:400;font-style:italic;font-size:48px;line-height:1;letter-spacing:-0.02em;margin:12px 0 14px;position:relative;z-index:1}
-.gate-card h1 .sans{font-family:"Inter";font-style:normal;font-weight:700}
-.gate-card p{font-size:14px;color:var(--ink-2);margin-bottom:28px;line-height:1.6;position:relative;z-index:1}
-.gate-form{display:flex;flex-direction:column;gap:10px;position:relative;z-index:1}
-.gate-form label{font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
-.gate-form input{background:rgba(255,255,255,0.04);border:1px solid var(--line);color:var(--ink);padding:12px 14px;border-radius:12px;font-family:"JetBrains Mono",monospace;font-size:14px;outline:0;transition:all 0.25s;width:100%}
-.gate-form input:focus{border-color:var(--accent);background:rgba(255,255,255,0.08)}
-.gate-submit{background:var(--accent);color:#000;border:0;padding:14px;border-radius:12px;font-size:14px;font-weight:600;margin-top:6px;cursor:pointer;transition:all 0.3s var(--ease);box-shadow:0 10px 24px rgba(217,176,122,0.25)}
-.gate-submit:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 14px 32px rgba(217,176,122,0.4)}
-.gate-submit:disabled{opacity:0.6;cursor:wait}
-.gate-err{color:#f7b5b5;font-size:13px;margin-top:6px;display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);padding:10px 12px;border-radius:10px;position:relative;z-index:1}
-.gate-err.show{display:block}
+.dash-wrap{display:none}
+.dash-wrap.show{display:block}
 
-/* ───────────── MAIN DASHBOARD ───────────── */
-.dash{padding:40px;max-width:1500px;margin:0 auto;position:relative;z-index:5;display:none}
-.dash.show{display:block}
-
-.dash-hdr{margin-bottom:32px}
+.dash-hdr{max-width:1400px;margin:0 auto 36px}
 .dash-hdr .eyebrow{font-family:"Fraunces";font-style:italic;font-size:13px;color:var(--accent);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:10px}
-.dash-hdr h1{font-family:"Fraunces";font-weight:400;font-size:54px;line-height:1;letter-spacing:-0.03em;font-style:italic}
-.dash-hdr h1 .sans{font-family:"Inter";font-style:normal;font-weight:700;letter-spacing:-0.04em}
-.dash-hdr .sub{font-size:15px;color:var(--ink-3);margin-top:8px}
+.dash-hdr h2{font-family:"Fraunces";font-weight:400;font-size:44px;line-height:1;letter-spacing:-0.03em;font-style:italic}
+.dash-hdr h2 .sans{font-family:"Inter";font-style:normal;font-weight:700;letter-spacing:-0.04em}
 
-/* stats */
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:36px}
-.stat{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;position:relative;overflow:hidden}
-.stat::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:var(--c,var(--accent));opacity:0.7}
+/* ═════════════ STATS + VITALS ═════════════ */
+.stats{max-width:1400px;margin:0 auto 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+.stat{background:rgba(14,14,20,0.72);backdrop-filter:blur(20px);border:1px solid var(--line);border-radius:16px;padding:20px;position:relative;overflow:hidden}
+.stat::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:var(--c,var(--accent));opacity:0.8}
 .stat.running{--c:var(--orange)} .stat.queued{--c:var(--blue)} .stat.completed{--c:var(--green)} .stat.total{--c:var(--accent)}
-.stat-label{font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:8px}
-.stat-value{font-family:"Fraunces";font-style:italic;font-size:46px;font-weight:500;line-height:1}
+.stat-label{font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:6px}
+.stat-value{font-family:"Fraunces";font-style:italic;font-size:44px;font-weight:500;line-height:1}
 .stat.running .stat-value{color:var(--orange)}
-.stat-meta{font-size:12px;color:var(--ink-3);margin-top:6px}
+.stat.completed .stat-value{color:var(--green)}
+.stat-meta{font-size:12px;color:var(--ink-3);margin-top:4px}
 
-/* ───────────── MAIN LAYOUT ───────────── */
-.main{display:grid;grid-template-columns:380px 1fr;gap:24px}
+.vitals{max-width:1400px;margin:0 auto 28px;background:rgba(14,14,20,0.72);backdrop-filter:blur(20px);border:1px solid var(--line);border-radius:16px;padding:20px 22px}
+.vitals-hdr{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px}
+.vitals-hdr h3{font-family:"Fraunces";font-style:italic;font-size:18px;font-weight:500}
+.vitals-hdr .sub{font-size:11px;color:var(--ink-3);letter-spacing:0.1em;text-transform:uppercase;font-weight:600}
+.vitals-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:10px}
+.vital{background:rgba(255,255,255,0.02);border:1px solid var(--line);border-radius:12px;padding:14px 16px;position:relative;overflow:hidden}
+.vital::before{content:"";position:absolute;top:0;left:0;bottom:0;width:3px;background:var(--vc);opacity:0.9}
+.vital-name{font-size:12px;font-weight:600;color:var(--ink-2);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.vital-name .pulse{width:6px;height:6px;border-radius:50%;background:var(--vc);box-shadow:0 0 8px var(--vc);animation:vpulse var(--vr,2s) ease-in-out infinite}
+@keyframes vpulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.vital-stat{font-family:"Fraunces";font-style:italic;font-size:22px;font-weight:500;line-height:1;color:var(--ink)}
+.vital-bars{display:flex;gap:2px;margin-top:8px;height:20px;align-items:flex-end}
+.vital-bar{flex:1;background:var(--vc);opacity:0.35;border-radius:1px;min-height:2px;transition:height 0.4s var(--ease)}
+.vital-bar.on{opacity:1}
+.vital.strategy{--vc:var(--accent)} .vital.design{--vc:var(--pink)}
+.vital.engineering{--vc:var(--blue)} .vital.content{--vc:var(--purple)}
+.vital.growth{--vc:var(--orange)} .vital.ops{--vc:var(--cyan)}
+.vital.specialty{--vc:var(--green)}
+
+/* ═════════════ ANALYTICS ═════════════ */
+.analytics{max-width:1400px;margin:0 auto 28px;display:grid;grid-template-columns:1.4fr 1fr;gap:16px}
+@media(max-width:1000px){.analytics{grid-template-columns:1fr}}
+.chart-panel{background:rgba(14,14,20,0.72);backdrop-filter:blur(20px);border:1px solid var(--line);border-radius:16px;padding:22px}
+.chart-hdr{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:18px}
+.chart-hdr h3{font-family:"Fraunces";font-style:italic;font-size:18px;font-weight:500}
+.chart-hdr .sub{font-size:11px;color:var(--ink-3);letter-spacing:0.1em;text-transform:uppercase;font-weight:600}
+.chart svg{width:100%;display:block;overflow:visible}
+.chart-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;font-size:11px;color:var(--ink-3)}
+.chart-legend span{display:flex;align-items:center;gap:5px}
+.chart-legend i{width:9px;height:9px;border-radius:2px;display:inline-block}
+
+/* ═════════════ MAIN LAYOUT ═════════════ */
+.main{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:380px 1fr;gap:20px}
 @media(max-width:1100px){.main{grid-template-columns:1fr}}
 
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:20px;overflow:hidden}
-.panel-hdr{padding:20px 24px 14px;display:flex;justify-content:space-between;align-items:baseline}
-.panel-hdr h3{font-family:"Fraunces";font-style:italic;font-size:22px;font-weight:500;letter-spacing:-0.015em}
+.panel{background:rgba(14,14,20,0.72);backdrop-filter:blur(20px);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.panel-hdr{padding:18px 22px 12px;display:flex;justify-content:space-between;align-items:baseline}
+.panel-hdr h3{font-family:"Fraunces";font-style:italic;font-size:20px;font-weight:500}
 .panel-hdr .sub{font-size:11px;color:var(--ink-3);letter-spacing:0.1em;text-transform:uppercase;font-weight:600}
 
-/* ───────────── ORG CHART ───────────── */
-.org{padding:10px 14px 20px}
-.mgr{background:var(--panel-2);border:1px solid var(--line);border-radius:14px;margin-bottom:8px;overflow:hidden;transition:border-color 0.25s,background 0.25s;cursor:pointer}
-.mgr:hover{border-color:rgba(217,176,122,0.25)}
-.mgr.sel{border-color:rgba(217,176,122,0.4);background:rgba(217,176,122,0.04)}
-.mgr-row{padding:14px 16px;display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;align-items:center}
-.mgr-icon{width:36px;height:36px;border-radius:10px;background:var(--mc);display:grid;place-items:center;color:#0a0a0d;font-weight:700;font-size:14px;font-family:"Fraunces";font-style:italic}
-.mgr-body .mgr-name{font-size:15px;font-weight:600;letter-spacing:-0.01em}
-.mgr-body .mgr-desc{font-size:11.5px;color:var(--ink-3);margin-top:2px;line-height:1.4}
-.mgr-count{font-family:"Fraunces";font-style:italic;font-size:18px;color:var(--mc);font-weight:500}
-.mgr-count small{font-size:10px;color:var(--ink-3);display:block;letter-spacing:0.1em;margin-top:-2px;font-family:"Inter";font-style:normal;text-transform:uppercase;font-weight:600}
+/* ═════════════ ORG CHART ═════════════ */
+.org{padding:6px 14px 16px}
+.mgr{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;margin-bottom:8px;overflow:hidden;transition:border-color 0.25s;cursor:pointer}
+.mgr:hover{border-color:rgba(232,169,98,0.3)}
+.mgr.sel{border-color:rgba(232,169,98,0.5);background:rgba(232,169,98,0.04)}
+.mgr-row{padding:12px 14px;display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center}
+.mgr-icon{width:34px;height:34px;border-radius:10px;background:var(--mc);display:grid;place-items:center;color:#0a0a0d;font-weight:700;font-size:14px;font-family:"Fraunces";font-style:italic}
+.mgr-body .mgr-name{font-size:14px;font-weight:600;letter-spacing:-0.01em}
+.mgr-body .mgr-desc{font-size:11px;color:var(--ink-3);margin-top:1px;line-height:1.4}
+.mgr-count{font-family:"Fraunces";font-style:italic;font-size:17px;color:var(--mc);font-weight:500}
+.mgr-count small{font-size:9px;color:var(--ink-3);display:block;letter-spacing:0.1em;margin-top:-1px;font-family:"Inter";font-style:normal;text-transform:uppercase;font-weight:600}
 .mgr-caret{color:var(--ink-3);transition:transform 0.3s}
 .mgr.open .mgr-caret{transform:rotate(90deg)}
 .mgr-employees{max-height:0;overflow:hidden;transition:max-height 0.4s var(--ease)}
 .mgr.open .mgr-employees{max-height:800px}
-.mgr-employees-inner{padding:4px 16px 16px;display:flex;flex-wrap:wrap;gap:5px}
-.emp{font-family:"JetBrains Mono",monospace;font-size:11px;padding:4px 9px;background:rgba(255,255,255,0.04);border:1px solid var(--line);color:var(--ink-2);border-radius:100px;letter-spacing:-0.01em}
-.mgr.design .mgr-icon{background:var(--pink)}
-.mgr.strategy .mgr-icon{background:var(--accent)}
-.mgr.engineering .mgr-icon{background:var(--blue)}
-.mgr.content .mgr-icon{background:var(--purple)}
-.mgr.growth .mgr-icon{background:var(--orange)}
-.mgr.ops .mgr-icon{background:var(--cyan)}
-.mgr.specialty .mgr-icon{background:var(--green)}
-.mgr.design{--mc:var(--pink)}
-.mgr.strategy{--mc:var(--accent)}
-.mgr.engineering{--mc:var(--blue)}
-.mgr.content{--mc:var(--purple)}
-.mgr.growth{--mc:var(--orange)}
-.mgr.ops{--mc:var(--cyan)}
+.mgr-employees-inner{padding:2px 14px 14px;display:flex;flex-wrap:wrap;gap:5px}
+.emp{font-family:"JetBrains Mono",monospace;font-size:10.5px;padding:3px 8px;background:rgba(255,255,255,0.04);border:1px solid var(--line);color:var(--ink-2);border-radius:100px}
+.mgr.strategy{--mc:var(--accent)} .mgr.design{--mc:var(--pink)}
+.mgr.engineering{--mc:var(--blue)} .mgr.content{--mc:var(--purple)}
+.mgr.growth{--mc:var(--orange)} .mgr.ops{--mc:var(--cyan)}
 .mgr.specialty{--mc:var(--green)}
+.mgr.strategy .mgr-icon{background:var(--accent)} .mgr.design .mgr-icon{background:var(--pink)}
+.mgr.engineering .mgr-icon{background:var(--blue)} .mgr.content .mgr-icon{background:var(--purple)}
+.mgr.growth .mgr-icon{background:var(--orange)} .mgr.ops .mgr-icon{background:var(--cyan)}
+.mgr.specialty .mgr-icon{background:var(--green)}
 
-/* ───────────── TASK BOARD ───────────── */
-.board-filter{padding:0 24px 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.f-pill{background:rgba(255,255,255,0.04);border:1px solid var(--line);color:var(--ink-2);padding:6px 12px;border-radius:100px;font-size:12px;font-weight:500;display:inline-flex;align-items:center;gap:6px;transition:all 0.2s;cursor:pointer}
-.f-pill:hover{border-color:rgba(255,255,255,0.18);color:var(--ink)}
+/* ═════════════ TASK BOARD ═════════════ */
+.board-filter{padding:0 22px 14px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.f-pill{background:rgba(255,255,255,0.04);border:1px solid var(--line);color:var(--ink-2);padding:6px 12px;border-radius:100px;font-size:11.5px;font-weight:500;display:inline-flex;align-items:center;gap:6px;transition:all 0.2s;cursor:pointer}
+.f-pill:hover{border-color:rgba(255,255,255,0.2);color:var(--ink)}
 .f-pill.on{background:var(--accent);color:#0a0a0d;border-color:var(--accent)}
-.f-pill span{font-size:10px;padding:1px 7px;background:rgba(0,0,0,0.2);border-radius:100px;font-weight:600}
+.f-pill span{font-size:10px;padding:1px 6px;background:rgba(0,0,0,0.2);border-radius:100px;font-weight:600}
 .f-pill.on span{background:rgba(0,0,0,0.3)}
 .f-search{margin-left:auto;position:relative;min-width:200px}
-.f-search input{background:rgba(255,255,255,0.04);border:1px solid var(--line);color:var(--ink);padding:8px 14px 8px 34px;border-radius:100px;font-size:12.5px;outline:0;font-family:inherit;width:100%}
-.f-search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--ink-3)}
+.f-search input{background:rgba(255,255,255,0.04);border:1px solid var(--line);color:var(--ink);padding:7px 14px 7px 32px;border-radius:100px;font-size:12px;outline:0;font-family:inherit;width:100%}
+.f-search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--ink-3)}
 
-.tasks{padding:0 14px 20px;max-height:calc(100vh - 80px);overflow-y:auto}
+.tasks{padding:0 14px 18px;max-height:80vh;overflow-y:auto}
 .task{background:var(--panel-2);border:1px solid var(--line);border-radius:14px;margin-bottom:10px;overflow:hidden;transition:border-color 0.25s,background 0.25s}
-.task.open{border-color:rgba(217,176,122,0.35)}
-.task-row{padding:16px 20px;cursor:pointer;display:grid;grid-template-columns:1fr auto;gap:10px;transition:background 0.2s}
+.task.open{border-color:rgba(232,169,98,0.4)}
+.task-row{padding:14px 18px;cursor:pointer;display:grid;grid-template-columns:1fr auto;gap:10px;transition:background 0.2s}
 .task-row:hover{background:rgba(255,255,255,0.02)}
-.task-title{font-size:15px;font-weight:600;letter-spacing:-0.01em;margin-bottom:6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.task-sum{font-size:13px;color:var(--ink-2);line-height:1.55}
-.task-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
-.task-pill{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;font-weight:700;padding:3px 8px;border-radius:100px}
-.p-high{background:rgba(239,68,68,0.18);color:#f7b5b5;border:1px solid rgba(239,68,68,0.3)}
-.p-normal{background:rgba(126,200,227,0.15);color:var(--blue);border:1px solid rgba(126,200,227,0.3)}
-.p-low{background:rgba(122,122,133,0.15);color:var(--ink-3);border:1px solid rgba(122,122,133,0.25)}
-.task-status{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;font-weight:700;padding:3px 10px;border-radius:100px;display:inline-flex;align-items:center;gap:4px}
-.s-completed{background:rgba(107,198,126,0.15);color:var(--green);border:1px solid rgba(107,198,126,0.3)}
-.s-running{background:rgba(255,159,67,0.15);color:var(--orange);border:1px solid rgba(255,159,67,0.3)}
-.s-queued{background:rgba(126,200,227,0.12);color:var(--blue);border:1px solid rgba(126,200,227,0.25)}
-.s-archived{background:rgba(122,122,133,0.12);color:var(--ink-3);border:1px solid rgba(122,122,133,0.25)}
-.s-running::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--orange);animation:pulse 1.2s infinite}
-@keyframes pulse{50%{opacity:0.4}}
-.task-meta{font-size:11px;color:var(--ink-3);font-family:"JetBrains Mono",monospace;letter-spacing:-0.01em}
-.task-mgr-chip{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;font-weight:700;padding:3px 9px;border-radius:100px;color:#0a0a0d}
+.task-title{font-size:14px;font-weight:600;letter-spacing:-0.01em;margin-bottom:5px;display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.task-sum{font-size:12.5px;color:var(--ink-2);line-height:1.5}
+.task-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.task-pill{font-size:9.5px;letter-spacing:0.1em;text-transform:uppercase;font-weight:700;padding:3px 8px;border-radius:100px}
+.p-high{background:rgba(239,68,68,0.2);color:#f7b5b5}
+.p-normal{background:rgba(126,200,227,0.15);color:var(--blue)}
+.p-low{background:rgba(122,122,133,0.15);color:var(--ink-3)}
+.task-status{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;font-weight:700;padding:3px 9px;border-radius:100px;display:inline-flex;align-items:center;gap:5px}
+.s-completed{background:rgba(107,198,126,0.15);color:var(--green)}
+.s-running{background:rgba(255,159,67,0.18);color:var(--orange)}
+.s-queued{background:rgba(126,200,227,0.12);color:var(--blue)}
+.s-archived{background:rgba(122,122,133,0.12);color:var(--ink-3)}
+.s-running::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--orange);animation:vpulse 1.2s infinite}
+.task-meta{font-size:10.5px;color:var(--ink-3);font-family:"JetBrains Mono",monospace;letter-spacing:-0.01em}
+.task-mgr-chip{font-size:9.5px;letter-spacing:0.12em;text-transform:uppercase;font-weight:700;padding:2px 8px;border-radius:100px;color:#0a0a0d}
+
 .task-detail{max-height:0;overflow:hidden;transition:max-height 0.5s var(--ease)}
-.task.open .task-detail{max-height:3000px}
-.task-detail-inner{padding:4px 20px 22px;border-top:1px solid var(--line)}
-.brief{margin-top:14px;background:rgba(0,0,0,0.2);border-left:2px solid var(--accent);padding:12px 16px;border-radius:0 10px 10px 0;font-size:13px;color:var(--ink-2);line-height:1.55}
-.brief-label{font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:4px}
-.employees-used{margin-top:14px}
-.employees-used .lbl{font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-3);font-weight:700;margin-bottom:6px}
+.task.open .task-detail{max-height:5000px}
+.task-detail-inner{padding:6px 18px 20px;border-top:1px solid var(--line)}
+.brief{margin-top:12px;background:rgba(0,0,0,0.2);border-left:2px solid var(--accent);padding:10px 14px;border-radius:0 10px 10px 0;font-size:13px;color:var(--ink-2);line-height:1.55}
+.brief-label,.employees-used .lbl,.attach-label,.artifacts-label,.output-label{font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:6px}
+.employees-used,.attachments,.artifacts,.output{margin-top:14px}
 .employees-list{display:flex;flex-wrap:wrap;gap:5px}
-.progress-bar{margin-top:14px;background:rgba(255,255,255,0.05);height:4px;border-radius:2px;overflow:hidden}
-.progress-bar .fill{height:100%;background:var(--orange);border-radius:2px;transition:width 0.5s var(--ease)}
-.output{margin-top:18px;padding:18px 20px;background:rgba(255,255,255,0.02);border:1px solid var(--line);border-radius:12px}
-.output-label{font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
-.output-label .copy-btn{cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--ink-3);padding:4px 10px;border-radius:100px;font-size:10px;letter-spacing:0.06em;font-family:inherit}
-.output-label .copy-btn:hover{color:var(--ink);border-color:rgba(217,176,122,0.4)}
-.md{font-size:14px;line-height:1.65;color:var(--ink)}
-.md h2{font-family:"Fraunces";font-weight:500;font-size:22px;margin:22px 0 10px;letter-spacing:-0.01em;color:var(--ink)}
-.md h3{font-family:"Inter";font-weight:600;font-size:15px;margin:18px 0 8px;color:var(--accent);letter-spacing:-0.005em}
-.md h4{font-family:"Inter";font-weight:600;font-size:13.5px;margin:14px 0 6px;color:var(--ink-2)}
-.md p{margin-bottom:10px;color:var(--ink-2)}
-.md ul,.md ol{margin:8px 0 10px 22px;color:var(--ink-2)}
-.md li{margin-bottom:5px}
+.progress-bar{margin-top:12px;background:rgba(255,255,255,0.05);height:4px;border-radius:2px;overflow:hidden}
+.progress-bar .fill{height:100%;background:var(--orange);border-radius:2px;transition:width 0.5s}
+
+/* ATTACHMENT & ARTIFACT display */
+.att-grid,.art-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-top:4px}
+.att-item,.art-item{background:rgba(255,255,255,0.03);border:1px solid var(--line);border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color 0.2s,transform 0.3s;position:relative}
+.att-item:hover,.art-item:hover{border-color:rgba(232,169,98,0.4);transform:translateY(-1px)}
+.att-thumb,.art-thumb{aspect-ratio:1;background:#0a0a0d;display:grid;place-items:center;overflow:hidden;position:relative}
+.att-thumb img,.art-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.att-thumb .icon,.art-thumb .icon{font-size:28px;color:var(--ink-3)}
+.att-label,.art-label{padding:6px 8px;font-size:10px;color:var(--ink-2);letter-spacing:-0.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:"JetBrains Mono",monospace}
+.art-type-tag{position:absolute;top:6px;right:6px;font-size:9px;padding:2px 6px;background:rgba(0,0,0,0.7);border-radius:100px;color:#fff;letter-spacing:0.1em;font-weight:700;text-transform:uppercase}
+
+.output{background:rgba(255,255,255,0.02);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.output-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.output-label .copy-btn{cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--ink-3);padding:3px 9px;border-radius:100px;font-size:10px;letter-spacing:0.06em;font-family:inherit}
+.output-label .copy-btn:hover{color:var(--ink);border-color:rgba(232,169,98,0.4)}
+.md{font-size:13.5px;line-height:1.65;color:var(--ink)}
+.md h2{font-family:"Fraunces";font-weight:500;font-size:22px;margin:20px 0 9px;letter-spacing:-0.01em}
+.md h3{font-weight:600;font-size:15px;margin:16px 0 7px;color:var(--accent)}
+.md h4{font-weight:600;font-size:13px;margin:13px 0 5px;color:var(--ink-2)}
+.md p{margin-bottom:9px;color:var(--ink-2)}
+.md ul,.md ol{margin:6px 0 9px 22px;color:var(--ink-2)}
+.md li{margin-bottom:4px}
 .md strong{color:var(--ink);font-weight:700}
 .md em{color:var(--ink-2);font-style:italic}
-.md code{font-family:"JetBrains Mono",monospace;font-size:12px;background:rgba(255,255,255,0.06);padding:1px 6px;border-radius:4px;color:var(--accent)}
-.md pre{background:rgba(0,0,0,0.3);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:12px 0;overflow-x:auto}
-.md pre code{background:transparent;padding:0;font-size:12px;color:var(--ink-2);line-height:1.55}
-.md table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px}
-.md table th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);color:var(--ink-3);font-weight:600;font-size:11px;letter-spacing:0.06em;text-transform:uppercase}
-.md table td{padding:8px 10px;border-bottom:1px solid var(--line);color:var(--ink-2)}
-.md table tr:last-child td{border-bottom:0}
-.md blockquote{border-left:2px solid var(--accent);padding:2px 14px;margin:10px 0;color:var(--ink-2);font-style:italic}
-.md hr{border:0;border-top:1px solid var(--line);margin:16px 0}
-.task-actions{margin-top:16px;display:flex;gap:8px;flex-wrap:wrap}
-.task-actions button{padding:8px 14px;border-radius:100px;font-size:12px;font-weight:500;border:1px solid var(--line);background:rgba(255,255,255,0.04);color:var(--ink-2);cursor:pointer;font-family:inherit;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px}
-.task-actions button:hover{color:var(--ink);border-color:rgba(255,255,255,0.2)}
+.md code{font-family:"JetBrains Mono",monospace;font-size:11.5px;background:rgba(255,255,255,0.06);padding:1px 6px;border-radius:4px;color:var(--accent)}
+.md pre{background:rgba(0,0,0,0.3);border:1px solid var(--line);border-radius:8px;padding:13px 14px;margin:11px 0;overflow-x:auto}
+.md pre code{background:transparent;padding:0;font-size:11.5px;color:var(--ink-2);line-height:1.55}
+.md table{width:100%;border-collapse:collapse;margin:11px 0;font-size:12.5px}
+.md table th{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);color:var(--ink-3);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.06em}
+.md table td{padding:7px 9px;border-bottom:1px solid var(--line);color:var(--ink-2)}
+.md blockquote{border-left:2px solid var(--accent);padding:2px 13px;margin:9px 0;color:var(--ink-2);font-style:italic}
+.md hr{border:0;border-top:1px solid var(--line);margin:14px 0}
+
+.task-actions{margin-top:14px;display:flex;gap:7px;flex-wrap:wrap}
+.task-actions button{padding:7px 13px;border-radius:100px;font-size:11.5px;font-weight:500;border:1px solid var(--line);background:rgba(255,255,255,0.04);color:var(--ink-2);cursor:pointer;font-family:inherit;transition:all 0.2s}
+.task-actions button:hover{color:var(--ink);border-color:rgba(255,255,255,0.25)}
 .task-actions button.primary{background:var(--accent);color:#0a0a0d;border-color:var(--accent);font-weight:600}
-.task-actions button.primary:hover{background:#e8c28a}
 .task-actions button.danger{color:#f7b5b5;border-color:rgba(239,68,68,0.25)}
 
-.empty{padding:60px 20px;text-align:center;color:var(--ink-3)}
+.empty{padding:50px 20px;text-align:center;color:var(--ink-3)}
 .empty h3{font-family:"Fraunces";font-style:italic;font-size:20px;color:var(--ink-2);margin-bottom:6px;font-weight:500}
 .empty p{font-size:13px}
 
-.loading{padding:60px;text-align:center;color:var(--ink-3);font-size:14px}
-
-/* ───────────── NEW TASK MODAL ───────────── */
-.modal-back{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);z-index:100;display:none;align-items:center;justify-content:center;padding:40px}
+/* ═════════════ NEW TASK MODAL ═════════════ */
+.modal-back{position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(10px);z-index:100;display:none;align-items:center;justify-content:center;padding:40px}
 .modal-back.show{display:flex;animation:fadeIn 0.25s var(--ease)}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.modal{background:var(--bg-2);border:1px solid var(--line);border-radius:20px;max-width:620px;width:100%;max-height:90vh;overflow-y:auto;padding:36px;position:relative}
+.modal{background:var(--bg-2);border:1px solid var(--line);border-radius:20px;max-width:680px;width:100%;max-height:92vh;overflow-y:auto;padding:36px;position:relative}
 .modal .close{position:absolute;top:18px;right:18px;background:transparent;border:0;color:var(--ink-3);font-size:22px;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;transition:all 0.2s}
 .modal .close:hover{color:var(--ink);background:rgba(255,255,255,0.06)}
-.modal h2{font-family:"Fraunces";font-style:italic;font-size:32px;font-weight:500;margin-bottom:6px}
+.modal h2{font-family:"Fraunces";font-style:italic;font-size:32px;font-weight:500;margin-bottom:4px}
 .modal h2 .sans{font-family:"Inter";font-style:normal;font-weight:700}
-.modal .m-sub{font-size:13px;color:var(--ink-3);margin-bottom:24px;line-height:1.55}
-.modal form{display:flex;flex-direction:column;gap:14px}
-.modal label{font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:6px;display:block}
-.modal input,.modal textarea,.modal select{background:rgba(255,255,255,0.04);border:1px solid var(--line);color:var(--ink);padding:11px 14px;border-radius:10px;font-size:14px;outline:0;font-family:inherit;width:100%;transition:border-color 0.2s}
+.modal .m-sub{font-size:13px;color:var(--ink-3);margin-bottom:22px;line-height:1.55}
+.modal form{display:flex;flex-direction:column;gap:12px}
+.modal label{font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:5px;display:block}
+.modal input,.modal textarea,.modal select{background:rgba(255,255,255,0.04);border:1px solid var(--line);color:var(--ink);padding:10px 13px;border-radius:10px;font-size:14px;outline:0;font-family:inherit;width:100%;transition:border-color 0.2s}
 .modal input:focus,.modal textarea:focus,.modal select:focus{border-color:var(--accent)}
 .modal textarea{resize:vertical;min-height:100px;line-height:1.5}
-.modal .mgr-preview{background:rgba(255,255,255,0.04);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-top:6px}
+.modal .mgr-preview{background:rgba(255,255,255,0.04);border:1px solid var(--line);border-radius:10px;padding:11px 13px}
 .modal .mgr-preview .lbl{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-3);font-weight:700;margin-bottom:6px}
 .modal .mgr-preview .emps{display:flex;flex-wrap:wrap;gap:4px}
-.modal-submit{background:var(--accent);color:#000;border:0;padding:14px;border-radius:12px;font-size:14px;font-weight:600;margin-top:8px;cursor:pointer;transition:all 0.3s var(--ease);box-shadow:0 10px 24px rgba(217,176,122,0.25)}
-.modal-submit:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 14px 32px rgba(217,176,122,0.4)}
+
+/* upload zone */
+.upload-zone{background:rgba(255,255,255,0.03);border:2px dashed var(--line);border-radius:12px;padding:28px 20px;text-align:center;cursor:pointer;transition:all 0.25s}
+.upload-zone:hover,.upload-zone.drag{background:rgba(232,169,98,0.06);border-color:rgba(232,169,98,0.5)}
+.upload-zone .uz-icon{font-size:24px;margin-bottom:6px}
+.upload-zone .uz-main{font-size:13px;color:var(--ink);font-weight:500}
+.upload-zone .uz-hint{font-size:11px;color:var(--ink-3);margin-top:4px}
+.upload-zone input[type="file"]{display:none}
+.upload-preview{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.upload-thumb{position:relative;width:80px;height:80px;background:#0a0a0d;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.upload-thumb img{width:100%;height:100%;object-fit:cover}
+.upload-thumb .file-icon{width:100%;height:100%;display:grid;place-items:center;font-size:22px;color:var(--ink-3)}
+.upload-thumb .rm{position:absolute;top:3px;right:3px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,0.8);color:#fff;border:0;font-size:11px;cursor:pointer;display:grid;place-items:center;line-height:1}
+
+.modal-submit{background:var(--accent);color:#000;border:0;padding:13px;border-radius:12px;font-size:14px;font-weight:600;margin-top:6px;cursor:pointer;transition:all 0.3s var(--ease);box-shadow:0 10px 24px rgba(232,169,98,0.25)}
+.modal-submit:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 14px 32px rgba(232,169,98,0.4)}
 .modal-submit:disabled{opacity:0.6;cursor:wait}
 
-/* ───────────── WALKTHROUGH / TOUR ───────────── */
-.tour{position:fixed;inset:0;background:rgba(0,0,0,0.82);backdrop-filter:blur(6px);z-index:200;display:none;align-items:center;justify-content:center;padding:40px}
+/* ═════════════ LIGHTBOX ═════════════ */
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.92);backdrop-filter:blur(12px);z-index:150;display:none;align-items:center;justify-content:center;padding:40px;cursor:zoom-out}
+.lightbox.show{display:flex}
+.lightbox img{max-width:90vw;max-height:90vh;object-fit:contain;border-radius:8px;box-shadow:0 30px 80px rgba(0,0,0,0.6)}
+.lightbox iframe{width:90vw;height:90vh;border:0;border-radius:8px;background:#fff}
+
+/* ═════════════ TOUR ═════════════ */
+.tour{position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);z-index:200;display:none;align-items:center;justify-content:center;padding:40px}
 .tour.show{display:flex}
-.tour-card{background:var(--bg-2);border:1px solid var(--line);border-radius:24px;max-width:560px;padding:40px;position:relative;overflow:hidden}
-.tour-card::before{content:"";position:absolute;top:-40%;right:-20%;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,var(--accent) 0%,transparent 70%);opacity:0.15;filter:blur(30px);pointer-events:none}
-.tour-step{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--accent);letter-spacing:0.1em;font-weight:500;position:relative;z-index:1}
-.tour-illo{margin:18px 0 14px;font-size:48px;line-height:1;position:relative;z-index:1}
-.tour-card h3{font-family:"Fraunces";font-weight:500;font-style:italic;font-size:30px;line-height:1.1;letter-spacing:-0.02em;margin-bottom:10px;position:relative;z-index:1}
-.tour-card h3 .sans{font-family:"Inter";font-style:normal;font-weight:700;letter-spacing:-0.025em}
-.tour-card p{font-size:15px;color:var(--ink-2);line-height:1.65;margin-bottom:24px;position:relative;z-index:1}
+.tour-card{background:var(--bg-2);border:1px solid var(--line);border-radius:20px;max-width:540px;padding:36px;position:relative;overflow:hidden}
+.tour-card::before{content:"";position:absolute;top:-40%;right:-20%;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,var(--fire) 0%,transparent 70%);opacity:0.18;filter:blur(30px);pointer-events:none}
+.tour-step{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--accent);letter-spacing:0.1em;font-weight:500}
+.tour-illo{margin:14px 0 12px;font-size:44px;line-height:1}
+.tour-card h3{font-family:"Fraunces";font-weight:500;font-style:italic;font-size:26px;line-height:1.15;letter-spacing:-0.02em;margin-bottom:8px}
+.tour-card h3 .sans{font-family:"Inter";font-style:normal;font-weight:700}
+.tour-card p{font-size:14px;color:var(--ink-2);line-height:1.65;margin-bottom:22px}
 .tour-card p b{color:var(--ink);font-weight:600}
-.tour-nav{display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1}
-.tour-nav .dots{display:flex;gap:6px}
-.tour-nav .dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.18);transition:all 0.3s}
-.tour-nav .dot.on{background:var(--accent);width:20px;border-radius:3px}
-.tour-nav .btns{display:flex;gap:8px}
-.tour-nav button{background:transparent;border:1px solid var(--line);color:var(--ink-2);padding:10px 18px;border-radius:100px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all 0.2s}
+.tour-nav{display:flex;justify-content:space-between;align-items:center}
+.tour-nav .dots{display:flex;gap:5px}
+.tour-nav .dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.18);transition:all 0.3s}
+.tour-nav .dot.on{background:var(--accent);width:18px;border-radius:3px}
+.tour-nav .btns{display:flex;gap:7px}
+.tour-nav button{background:transparent;border:1px solid var(--line);color:var(--ink-2);padding:9px 16px;border-radius:100px;font-size:12.5px;font-weight:500;cursor:pointer;font-family:inherit;transition:all 0.2s}
 .tour-nav button:hover{color:var(--ink);border-color:rgba(255,255,255,0.2)}
 .tour-nav button.primary{background:var(--accent);color:#0a0a0d;border-color:var(--accent);font-weight:600}
-.tour-nav button.primary:hover{background:#e8c28a}
-.tour-skip{position:absolute;top:18px;right:18px;background:transparent;border:0;color:var(--ink-3);font-size:12px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;z-index:2}
-.tour-skip:hover{color:var(--ink)}
+.tour-skip{position:absolute;top:16px;right:16px;background:transparent;border:0;color:var(--ink-3);font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;z-index:2}
 
-/* toast */
-.toast{position:fixed;bottom:24px;right:24px;z-index:150;background:var(--bg-2);border:1px solid var(--line);padding:14px 20px;border-radius:12px;font-size:13px;color:var(--ink);display:none;max-width:320px;box-shadow:0 20px 40px rgba(0,0,0,0.4)}
+.toast{position:fixed;bottom:24px;right:24px;z-index:160;background:var(--bg-2);border:1px solid var(--line);padding:12px 18px;border-radius:12px;font-size:13px;color:var(--ink);display:none;max-width:320px;box-shadow:0 20px 40px rgba(0,0,0,0.4)}
 .toast.show{display:block;animation:slideIn 0.3s var(--ease)}
 .toast.ok{border-color:rgba(107,198,126,0.4)}
 .toast.err{border-color:rgba(239,68,68,0.4);color:#f7b5b5}
 @keyframes slideIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+#bootErr{display:none;max-width:520px;margin:80px auto;padding:20px 24px;border:1px solid rgba(239,68,68,0.35);background:rgba(239,68,68,0.1);border-radius:14px;color:#f7b5b5;font-family:system-ui;line-height:1.5;position:relative;z-index:20}
+#bootErr b{display:block;color:#fff;margin-bottom:6px}
 </style>
 </head>
 <body>
 
-<div class="mesh"></div>
+<!-- TOKYO CAMPFIRE SCENE -->
+<div class="scene" id="scene"><canvas id="sceneCanvas"></canvas></div>
+<div class="grain"></div>
+<div class="dash-bg" id="dashBg"></div>
 
-<nav>
-  <div class="logo">
-    <div class="logo-mark"></div>
-    Waleed Imran · Agent Ops
-    <span class="logo-ver">v1</span>
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow"><span class="dot"></span>Agent control · live ops</div>
+    <h1>By the fire,<br><em>with the fleet.</em></h1>
+    <p class="sub">Seven managers. Fifty-one subagents. One dashboard above the dystopia. Scroll to the ops floor.</p>
   </div>
-  <div class="nav-actions" id="navActions">
-    <a href="../">← Site</a>
-    <button id="helpBtn" style="display:none">? Walkthrough</button>
-    <button id="newTaskBtn" class="new-task" style="display:none">+ New task</button>
-    <button id="logoutBtn" style="display:none">Sign out</button>
-  </div>
-</nav>
+  <div class="scroll-hint">scroll ↓</div>
+</section>
 
-<!-- ───────────── AUTO-UNLOCKS ───────────── -->
-<div id="bootErr" style="display:none;max-width:520px;margin:80px auto;padding:22px 26px;border:1px solid rgba(239,68,68,0.35);background:rgba(239,68,68,0.08);border-radius:14px;color:#f7b5b5;font-family:system-ui;line-height:1.5;position:relative;z-index:5">
-  <b style="display:block;color:#fff;margin-bottom:6px">Couldn't reach the backend.</b>
-  <span id="bootErrMsg">Check network / try a hard refresh (⌘+Shift+R).</span>
-</div>
+<!-- DASHBOARD -->
+<div class="dash-wrap" id="dash">
+  <nav>
+    <div class="logo"><div class="logo-mark"></div>Agent Ops<span class="logo-ver">v2</span></div>
+    <div class="nav-actions">
+      <a href="../">← Site</a>
+      <button id="helpBtn">? Walkthrough</button>
+      <button id="newTaskBtn" class="new-task">+ New task</button>
+    </div>
+  </nav>
 
-<!-- ───────────── DASHBOARD ───────────── -->
-<div class="dash" id="dash">
+  <div id="bootErr"><b>Couldn't reach the backend.</b><span id="bootErrMsg"></span></div>
+
   <div class="dash-hdr">
     <div class="eyebrow">control centre</div>
-    <h1><span class="sans">Agent</span> ops, <em>live.</em></h1>
-    <div class="sub" id="dashSub">— loading —</div>
+    <h2><span class="sans">Agent</span> ops, <em>live.</em></h2>
   </div>
 
   <div class="stats" id="stats"></div>
 
+  <div class="vitals">
+    <div class="vitals-hdr"><h3>Live vitals</h3><span class="sub" id="vitalsPulse">— calm —</span></div>
+    <div class="vitals-grid" id="vitalsGrid"></div>
+  </div>
+
+  <div class="analytics">
+    <div class="chart-panel">
+      <div class="chart-hdr"><h3>Tasks per manager</h3><span class="sub">all time</span></div>
+      <div class="chart" id="chartBar"></div>
+    </div>
+    <div class="chart-panel">
+      <div class="chart-hdr"><h3>Status distribution</h3><span class="sub">live</span></div>
+      <div class="chart" id="chartDonut"></div>
+    </div>
+  </div>
+
+  <div class="analytics">
+    <div class="chart-panel">
+      <div class="chart-hdr"><h3>Completion velocity</h3><span class="sub">last 7 days</span></div>
+      <div class="chart" id="chartLine"></div>
+    </div>
+    <div class="chart-panel">
+      <div class="chart-hdr"><h3>Subagent deploys</h3><span class="sub">most used</span></div>
+      <div class="chart" id="chartSubagents"></div>
+    </div>
+  </div>
+
   <div class="main">
-    <div class="panel" id="orgPanel">
-      <div class="panel-hdr">
-        <h3>Org chart</h3>
-        <span class="sub" id="orgCount">7 managers</span>
-      </div>
+    <div class="panel">
+      <div class="panel-hdr"><h3>Org chart</h3><span class="sub" id="orgCount">7 managers</span></div>
       <div class="org" id="orgChart"></div>
     </div>
-
-    <div class="panel" id="boardPanel">
-      <div class="panel-hdr">
-        <h3>Task board</h3>
-        <span class="sub" id="boardCount">— tasks</span>
-      </div>
+    <div class="panel">
+      <div class="panel-hdr"><h3>Task board</h3><span class="sub" id="boardCount">— tasks</span></div>
       <div class="board-filter" id="boardFilter"></div>
-      <div class="tasks" id="tasksList"><div class="loading">Loading tasks…</div></div>
+      <div class="tasks" id="tasksList"><div class="empty">Loading…</div></div>
     </div>
   </div>
 </div>
 
-<!-- ───────────── NEW TASK MODAL ───────────── -->
+<!-- MODAL -->
 <div class="modal-back" id="modalBack">
   <div class="modal">
     <button class="close" id="modalClose">×</button>
     <h2>Assign <span class="sans">new</span> <em>task.</em></h2>
-    <p class="m-sub">The manager breaks the brief into parallel subtasks across its employee skills. Report posts back when it's done.</p>
+    <p class="m-sub">Attach any context — screenshots, PDFs, decks. The manager breaks the brief into parallel subtasks across its subagents. Report posts back here.</p>
     <form id="taskForm">
       <div><label>Manager</label><select name="manager" id="taskManager" required></select></div>
       <div class="mgr-preview" id="mgrPreview"></div>
-      <div><label>Title</label><input name="title" required placeholder="e.g. Re-write Leva pricing page" /></div>
-      <div><label>Brief</label><textarea name="brief" required placeholder="Specific enough that the manager knows what done looks like. 2–5 sentences."></textarea></div>
+      <div><label>Title</label><input name="title" required placeholder="e.g. Rewrite Leva pricing page" /></div>
+      <div><label>Brief</label><textarea name="brief" required placeholder="Specific enough that the manager knows what done looks like."></textarea></div>
+      <div>
+        <label>Context files (optional)</label>
+        <div class="upload-zone" id="uploadZone">
+          <div class="uz-icon">📎</div>
+          <div class="uz-main">Drop files · paste screenshots · click to browse</div>
+          <div class="uz-hint">Images, PDFs, decks, docs — up to 10MB each</div>
+          <input type="file" id="fileInput" multiple accept="image/*,.pdf,.md,.txt,.docx,.pptx,.zip" />
+        </div>
+        <div class="upload-preview" id="uploadPreview"></div>
+      </div>
       <div><label>Priority</label>
         <select name="priority">
           <option value="normal">Normal</option>
@@ -329,11 +412,14 @@ nav{position:sticky;top:0;z-index:40;padding:16px 40px;display:flex;justify-cont
   </div>
 </div>
 
-<!-- ───────────── WALKTHROUGH TOUR ───────────── -->
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox"><img id="lightboxImg" /></div>
+
+<!-- TOUR -->
 <div class="tour" id="tour">
   <div class="tour-card">
     <button class="tour-skip" id="tourSkip">Skip</button>
-    <div class="tour-step" id="tourStep">01 · 05</div>
+    <div class="tour-step" id="tourStep">01 · 06</div>
     <div class="tour-illo" id="tourIllo"></div>
     <h3 id="tourTitle"></h3>
     <p id="tourBody"></p>
@@ -349,414 +435,10 @@ nav{position:sticky;top:0;z-index:40;padding:16px 40px;display:flex;justify-cont
 
 <div class="toast" id="toast"></div>
 
-<script>
-// ═══════════════════════════════════════════════════════
-// CONFIG
-// ═══════════════════════════════════════════════════════
-const SUPABASE_URL  = 'https://bniudmwlpaqqpthsgppv.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJuaXVkbXdscGFxcXB0aHNncHB2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMzYzNjcsImV4cCI6MjA4OTcxMjM2N30.WaNKfPUgUBv2HHt6KlbERVoTEGO2_YQnC4GlXCIxBhg';
-const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-
-const MANAGERS = {
-  strategy:    { name:'Strategy',    desc:'Memos, decks, case prep, modeling, PE/VC, M&A.',       employees:['consulting-frameworks','case-interview-prep','financial-modeling','private-equity-diligence','ma-advisory','consulting-slide-design','strategy-memo-writing','market-research','venture-capital-associate'] },
-  design:      { name:'Design',      desc:'Brand, UI/UX, motion, 3D, data viz, landing, social.', employees:['brand-identity-system','app-ui-designer','immersive-landing','webgl-3d-designer','shader-art-master','particle-systems','motion-interaction','scroll-experiences','svg-motion','generative-visuals','micro-interactions','premium-digital-art','typography-art','motion-reels','social-media-graphics','dashboard-dataviz','print-export-prep','3d-render-pipeline','image-generation'] },
-  engineering: { name:'Engineering', desc:'Full-stack web, AI SaaS, Chrome ext, Shopify.',        employees:['webdev-fullstack','ai-saas-builder','chrome-extensions','shopify-dev'] },
-  content:     { name:'Content',     desc:'Decks, newsletters, LinkedIn, podcast, courses.',      employees:['pitch-decks','ai-voice-avatar','linkedin-ghostwriting','newsletter-ops','podcast-production','course-builder','gumroad-digital-products'] },
-  growth:      { name:'Growth',      desc:'Email, cold outreach, SEO, paid ads.',                 employees:['email-marketing','cold-outreach','seo-content-engine','paid-ads-creative'] },
-  ops:         { name:'Ops',         desc:'Notion, Airtable, automation pipelines.',              employees:['notion-systems','airtable-bases','automation-plumbing'] },
-  specialty:   { name:'Specialty',   desc:'Legal, bookkeeping, RE, grants, TM research.',         employees:['legal-templates','bookkeeping-workflows','real-estate-listing','grant-writing','trademark-research'] },
-};
-
-// ═══════════════════════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════════════════════
-const dash = document.getElementById('dash');
-const bootErr = document.getElementById('bootErr');
-const bootErrMsg = document.getElementById('bootErrMsg');
-const helpBtn = document.getElementById('helpBtn');
-const newTaskBtn = document.getElementById('newTaskBtn');
-const logoutBtn = document.getElementById('logoutBtn');
-const statsEl = document.getElementById('stats');
-const orgChart = document.getElementById('orgChart');
-const boardFilter = document.getElementById('boardFilter');
-const tasksList = document.getElementById('tasksList');
-const orgCount = document.getElementById('orgCount');
-const boardCount = document.getElementById('boardCount');
-const dashSub = document.getElementById('dashSub');
-const toast = document.getElementById('toast');
-
-const adminPass = 'waleed-admin-2026';
-let tasks = [];
-let activeManager = 'all';
-let activeStatus  = 'all';
-let activeSearch  = '';
-
-// ═══════════════════════════════════════════════════════
-// HELPERS
-// ═══════════════════════════════════════════════════════
-function showToast(msg, kind='ok'){
-  toast.textContent = msg;
-  toast.className = 'toast show ' + kind;
-  setTimeout(()=>toast.className='toast', 3200);
-}
-function esc(s){ return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function timeAgo(d){
-  const s = Math.floor((Date.now()-d.getTime())/1000);
-  if(s<60) return 'just now';
-  if(s<3600) return Math.floor(s/60)+'m ago';
-  if(s<86400) return Math.floor(s/3600)+'h ago';
-  if(s<604800) return Math.floor(s/86400)+'d ago';
-  return d.toLocaleDateString(undefined,{month:'short',day:'numeric'});
-}
-
-// minimal markdown renderer (good enough for our seed content)
-function renderMarkdown(md){
-  if(!md) return '';
-  let html = '';
-  const lines = md.split('\n');
-  let inCode = false, inTable = false, codeLang = '', tableLines = [];
-  const inlineFmt = (s) => esc(s)
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*([^*]+)\*/g, '<em>$1</em>')
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
-
-  const flushTable = () => {
-    if (!tableLines.length) return;
-    const rows = tableLines.map(l => l.split('|').map(c => c.trim()).filter(c => c !== ''));
-    if (rows.length < 2) { tableLines = []; return; }
-    html += '<table>';
-    html += '<thead><tr>' + rows[0].map(c=>'<th>'+inlineFmt(c)+'</th>').join('') + '</tr></thead>';
-    html += '<tbody>' + rows.slice(2).map(r => '<tr>'+r.map(c=>'<td>'+inlineFmt(c)+'</td>').join('')+'</tr>').join('') + '</tbody>';
-    html += '</table>';
-    tableLines = [];
-  };
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    if (line.startsWith('```')) {
-      if (inCode) { html += '</code></pre>'; inCode = false; }
-      else { codeLang = line.slice(3); html += '<pre><code>'; inCode = true; }
-      continue;
-    }
-    if (inCode) { html += esc(line) + '\n'; continue; }
-    if (line.startsWith('|') && line.includes('|', 1)) { inTable = true; tableLines.push(line); continue; }
-    if (inTable) { flushTable(); inTable = false; }
-    if (line.startsWith('### ')) { html += '<h3>'+inlineFmt(line.slice(4))+'</h3>'; }
-    else if (line.startsWith('## ')) { html += '<h2>'+inlineFmt(line.slice(3))+'</h2>'; }
-    else if (line.startsWith('# ')) { html += '<h3>'+inlineFmt(line.slice(2))+'</h3>'; }
-    else if (line.match(/^\d+\. /)) {
-      // open ordered list if not
-      if (!html.endsWith('</ol>') && !html.match(/<ol>[^]*$/)) html += '<ol>';
-      html += '<li>'+inlineFmt(line.replace(/^\d+\.\s+/,''))+'</li>';
-      const next = lines[i+1] || '';
-      if (!next.match(/^\d+\. /)) html += '</ol>';
-    }
-    else if (line.startsWith('- ')) {
-      if (!html.match(/<ul>[^]*$/) || html.endsWith('</ul>')) html += '<ul>';
-      html += '<li>'+inlineFmt(line.slice(2))+'</li>';
-      const next = lines[i+1] || '';
-      if (!next.startsWith('- ')) html += '</ul>';
-    }
-    else if (line.startsWith('> ')) { html += '<blockquote>'+inlineFmt(line.slice(2))+'</blockquote>'; }
-    else if (line.trim() === '---') { html += '<hr>'; }
-    else if (line.trim() === '') { html += '<br>'; }
-    else { html += '<p>'+inlineFmt(line)+'</p>'; }
-  }
-  if (inCode) html += '</code></pre>';
-  flushTable();
-  return html;
-}
-
-// ═══════════════════════════════════════════════════════
-// AUTH
-// ═══════════════════════════════════════════════════════
-async function tryAuth(pass){
-  const { data, error } = await supa.rpc('get_agent_tasks', { admin_pass: pass });
-  if (error) throw error;
-  return data || [];
-}
-
-async function boot(){
-  try {
-    tasks = await tryAuth(adminPass);
-    dash.classList.add('show');
-    helpBtn.style.display = 'inline-flex';
-    newTaskBtn.style.display = 'inline-flex';
-    logoutBtn.style.display = 'inline-flex';
-    renderDash();
-    if (!localStorage.getItem('wiAgentsTourDone')) {
-      setTimeout(() => startTour(), 600);
-    }
-  } catch (err) {
-    console.error('[agents boot]', err);
-    const m = (err && err.message) || 'unknown error';
-    bootErrMsg.textContent = `${m}. Try ⌘+Shift+R.`;
-    bootErr.style.display = 'block';
-  }
-}
-boot();
-
-logoutBtn.addEventListener('click', () => { location.href = '../'; });
-
-// ═══════════════════════════════════════════════════════
-// RENDER
-// ═══════════════════════════════════════════════════════
-function renderDash(){
-  // stats
-  const total = tasks.length;
-  const running = tasks.filter(t => t.status === 'running').length;
-  const queued = tasks.filter(t => t.status === 'queued').length;
-  const completed = tasks.filter(t => t.status === 'completed').length;
-  const weekAgo = new Date(Date.now()-7*864e5);
-  const thisWeek = tasks.filter(t => new Date(t.created_at) > weekAgo).length;
-  statsEl.innerHTML = `
-    <div class="stat total"><div class="stat-label">All tasks</div><div class="stat-value">${total}</div><div class="stat-meta">lifetime</div></div>
-    <div class="stat running"><div class="stat-label">Running now</div><div class="stat-value">${running}</div><div class="stat-meta">in parallel</div></div>
-    <div class="stat queued"><div class="stat-label">In queue</div><div class="stat-value">${queued}</div><div class="stat-meta">waiting</div></div>
-    <div class="stat completed"><div class="stat-label">Completed</div><div class="stat-value">${completed}</div><div class="stat-meta">${thisWeek} this week</div></div>
-  `;
-  dashSub.textContent = total > 0 ? `Last update ${timeAgo(new Date(tasks[0].created_at))} · ${total} tasks across 7 managers · ~51 subagents` : '0 tasks yet — queue one to start';
-
-  // org chart
-  orgChart.innerHTML = Object.entries(MANAGERS).map(([k, m]) => {
-    const taskCount = tasks.filter(t => t.manager === k).length;
-    return `<div class="mgr ${k} ${activeManager === k ? 'sel' : ''}" data-mgr="${k}">
-      <div class="mgr-row" onclick="toggleManager('${k}', event)">
-        <div class="mgr-icon">${m.name.charAt(0)}</div>
-        <div class="mgr-body">
-          <div class="mgr-name">${m.name} Manager</div>
-          <div class="mgr-desc">${m.desc}</div>
-        </div>
-        <div class="mgr-count">${m.employees.length}<small>subagents</small></div>
-        <div class="mgr-caret">›</div>
-      </div>
-      <div class="mgr-employees">
-        <div class="mgr-employees-inner">
-          ${m.employees.map(e => '<span class="emp">'+e+'</span>').join('')}
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-
-  // board filter
-  const cats = [['all','All',tasks.length]].concat(Object.entries(MANAGERS).map(([k,m]) => [k, m.name, tasks.filter(t=>t.manager===k).length]));
-  boardFilter.innerHTML = `
-    ${cats.map(([k,l,n]) => `<button class="f-pill ${activeManager===k?'on':''}" data-mgr="${k}">${l}<span>${n}</span></button>`).join('')}
-    <div class="f-search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg><input id="searchTasks" placeholder="Search tasks…" value="${esc(activeSearch)}" /></div>
-  `;
-  boardFilter.querySelectorAll('.f-pill').forEach(p => p.addEventListener('click', () => { activeManager = p.dataset.mgr; renderDash(); }));
-  document.getElementById('searchTasks').addEventListener('input', e => { activeSearch = e.target.value.toLowerCase().trim(); renderBoard(); });
-
-  renderBoard();
-}
-
-function renderBoard(){
-  const filtered = tasks.filter(t => {
-    const mOk = activeManager === 'all' || t.manager === activeManager;
-    const q = activeSearch;
-    const sOk = !q || (t.title||'').toLowerCase().includes(q) || (t.brief||'').toLowerCase().includes(q) || (t.summary||'').toLowerCase().includes(q);
-    return mOk && sOk;
-  });
-  boardCount.textContent = `${filtered.length} ${filtered.length===1?'task':'tasks'}`;
-
-  if (!filtered.length) {
-    tasksList.innerHTML = '<div class="empty"><h3>Nothing here.</h3><p>Try a different manager or queue a new task.</p></div>';
-    return;
-  }
-  tasksList.innerHTML = filtered.map(t => {
-    const mgr = MANAGERS[t.manager];
-    const bgColors = { strategy: '#d9b07a', design: '#ec4899', engineering: '#7EC8E3', content: '#8a5cf6', growth: '#FF9F43', ops: '#06b6d4', specialty: '#6BC67E' };
-    return `<div class="task" data-id="${t.id}" data-status="${t.status}">
-      <div class="task-row" onclick="toggleTask('${t.id}')">
-        <div>
-          <div class="task-title">
-            <span>${esc(t.title)}</span>
-            <span class="task-mgr-chip" style="background:${bgColors[t.manager]}">${(mgr?.name||t.manager).toUpperCase()}</span>
-          </div>
-          <div class="task-sum">${esc(t.summary || t.brief.slice(0, 140) + (t.brief.length > 140 ? '…' : ''))}</div>
-        </div>
-        <div class="task-right">
-          <span class="task-status s-${t.status}">${t.status}${t.status==='running' ? ' · '+(t.progress||0)+'%' : ''}</span>
-          <span class="task-pill p-${t.priority}">${t.priority}</span>
-          <span class="task-meta">${timeAgo(new Date(t.created_at))}</span>
-        </div>
-      </div>
-      <div class="task-detail">
-        <div class="task-detail-inner">
-          <div class="brief-label">The brief</div>
-          <div class="brief">${esc(t.brief)}</div>
-
-          ${t.subagents_used && t.subagents_used.length ? `<div class="employees-used">
-            <div class="lbl">Subagents deployed</div>
-            <div class="employees-list">${t.subagents_used.map(s => '<span class="emp">'+s+'</span>').join('')}</div>
-          </div>` : ''}
-
-          ${t.status === 'running' ? `<div class="progress-bar"><div class="fill" style="width:${t.progress||0}%"></div></div>` : ''}
-
-          ${t.output_markdown ? `<div class="output">
-            <div class="output-label">Report · the output<button class="copy-btn" onclick="copyOutput('${t.id}', event)">copy md</button></div>
-            <div class="md">${renderMarkdown(t.output_markdown)}</div>
-          </div>` : (t.status === 'queued' ? '<div style="margin-top:16px;padding:14px;background:rgba(126,200,227,0.05);border:1px dashed rgba(126,200,227,0.25);border-radius:10px;font-size:13px;color:var(--ink-3);text-align:center"><b style="color:var(--blue)">Queued</b> — will be picked up when dispatched to the manager.</div>' : '')}
-
-          <div class="task-actions">
-            ${t.status === 'queued' ? '<button class="primary" onclick="markRunning(\''+t.id+'\')">Dispatch →</button>' : ''}
-            ${t.status === 'running' ? '<button class="primary" onclick="markCompleted(\''+t.id+'\')">Mark complete</button>' : ''}
-            ${t.status !== 'archived' ? '<button onclick="archiveTask(\''+t.id+'\')">Archive</button>' : ''}
-            <button class="danger" onclick="deleteTask(\''+t.id+'\')">Delete</button>
-          </div>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// ═══════════════════════════════════════════════════════
-// INTERACTIONS
-// ═══════════════════════════════════════════════════════
-window.toggleManager = (k, evt) => {
-  const mgrEl = document.querySelector(`.mgr[data-mgr="${k}"]`);
-  if (mgrEl) mgrEl.classList.toggle('open');
-  // also set as active filter
-  activeManager = (activeManager === k) ? 'all' : k;
-  renderDash();
-};
-window.toggleTask = (id) => {
-  document.querySelector(`.task[data-id="${id}"]`).classList.toggle('open');
-};
-window.copyOutput = (id, evt) => {
-  evt.stopPropagation();
-  const t = tasks.find(x => x.id === id);
-  if (!t) return;
-  navigator.clipboard.writeText(t.output_markdown || '').then(() => showToast('Report copied as markdown'));
-};
-async function updateTask(id, fields){
-  const { error } = await supa.rpc('update_agent_task', {
-    task_id: id, admin_pass: adminPass,
-    new_status: fields.status ?? null,
-    new_output: fields.output ?? null,
-    new_summary: fields.summary ?? null,
-    new_subagents: fields.subagents ?? null,
-    new_progress: fields.progress ?? null,
-  });
-  if (error) { showToast('Update failed', 'err'); return false; }
-  return true;
-}
-window.markRunning = async id => {
-  if (await updateTask(id, { status: 'running', progress: 5 })) {
-    const t = tasks.find(x => x.id === id); if (t) { t.status='running'; t.progress=5; t.started_at = new Date().toISOString(); }
-    renderBoard();
-    showToast('Task dispatched — waiting for execution');
-  }
-};
-window.markCompleted = async id => {
-  if (await updateTask(id, { status: 'completed', progress: 100 })) {
-    const t = tasks.find(x => x.id === id); if (t) { t.status='completed'; t.progress=100; t.completed_at = new Date().toISOString(); }
-    renderBoard();
-    showToast('Marked completed');
-  }
-};
-window.archiveTask = async id => {
-  if (await updateTask(id, { status: 'archived' })) {
-    const t = tasks.find(x => x.id === id); if (t) t.status='archived';
-    renderBoard();
-    showToast('Archived');
-  }
-};
-window.deleteTask = async id => {
-  if (!confirm('Delete this task permanently?')) return;
-  const { error } = await supa.rpc('delete_agent_task', { task_id: id, admin_pass: adminPass });
-  if (error) { showToast('Delete failed', 'err'); return; }
-  tasks = tasks.filter(x => x.id !== id);
-  renderDash();
-  showToast('Deleted');
-};
-
-// ═══════════════════════════════════════════════════════
-// NEW TASK MODAL
-// ═══════════════════════════════════════════════════════
-const modalBack = document.getElementById('modalBack');
-const taskForm  = document.getElementById('taskForm');
-const taskMgrSelect = document.getElementById('taskManager');
-const mgrPreview = document.getElementById('mgrPreview');
-const taskSubmit = document.getElementById('taskSubmit');
-
-taskMgrSelect.innerHTML = '<option value="">— pick a manager —</option>' + Object.entries(MANAGERS).map(([k,m]) => `<option value="${k}">${m.name}</option>`).join('');
-function updatePreview(){
-  const m = MANAGERS[taskMgrSelect.value];
-  if (!m) { mgrPreview.innerHTML = '<div class="lbl">Pick a manager to see available subagents</div>'; return; }
-  mgrPreview.innerHTML = `<div class="lbl">${m.name} commands ${m.employees.length} subagents</div><div class="emps">${m.employees.map(e => '<span class="emp">'+e+'</span>').join('')}</div>`;
-}
-taskMgrSelect.addEventListener('change', updatePreview);
-updatePreview();
-
-newTaskBtn.addEventListener('click', () => { modalBack.classList.add('show'); document.getElementById('taskManager').focus(); });
-document.getElementById('modalClose').addEventListener('click', () => modalBack.classList.remove('show'));
-modalBack.addEventListener('click', e => { if (e.target === modalBack) modalBack.classList.remove('show'); });
-
-taskForm.addEventListener('submit', async e => {
-  e.preventDefault();
-  taskSubmit.disabled = true;
-  taskSubmit.textContent = 'Queueing…';
-  const fd = new FormData(taskForm);
-  const data = Object.fromEntries(fd);
-  const { error } = await supa.from('agent_tasks').insert({
-    manager: data.manager, title: data.title.trim(), brief: data.brief.trim(),
-    priority: data.priority, status: 'queued'
-  });
-  if (error) { showToast('Queue failed', 'err'); taskSubmit.disabled = false; taskSubmit.textContent = 'Queue task →'; return; }
-  taskForm.reset();
-  updatePreview();
-  modalBack.classList.remove('show');
-  showToast('Task queued — refresh to see');
-  taskSubmit.disabled = false;
-  taskSubmit.textContent = 'Queue task →';
-  // refresh tasks
-  tasks = await tryAuth(adminPass);
-  renderDash();
-});
-
-// ═══════════════════════════════════════════════════════
-// WALKTHROUGH / TOUR
-// ═══════════════════════════════════════════════════════
-const TOUR = [
-  { illo: '👋', title: 'Welcome to <span class="sans">Agent Ops.</span>', body: '<b>Seven managers</b> run under you — Strategy, Design, Engineering, Content, Growth, Ops, Specialty. Each commands between 3 and 19 subagent skills as employees. You brief a manager; the manager breaks work into parallel tasks across the right employees.' },
-  { illo: '📊', title: 'The <em>stats strip</em> at top.', body: 'Live counts: <b>all tasks, running now, queued, completed</b>. The <em>running</em> number is how many agents are working in parallel at this moment.' },
-  { illo: '🏢', title: 'Left panel · the <em>org chart.</em>', body: 'Every manager is clickable. Opens their full <b>employee roster</b> — the skills they command. Click a manager to filter the task board to only their work.' },
-  { illo: '📋', title: 'Right panel · the <em>task board.</em>', body: 'Every task. Click any row to expand — you\'ll see the <b>brief, which subagents were deployed, the full report, and actions</b> (dispatch, archive, delete). Completed tasks show the full markdown report.' },
-  { illo: '⚡', title: '<em>Queue a new task</em> anytime.', body: 'Top-right <b>+ New task</b>. Pick a manager → write a brief → priority. The manager breaks it up and runs its subagents in parallel. Reports land on this dashboard when done.' },
-  { illo: '✨', title: 'You\'re in.', body: 'You can re-open this tour any time via the <b>? Walkthrough</b> button up top. Try expanding the first manager card, then expand a completed task to see the kind of report you\'ll get back.' }
-];
-
-const tourEl = document.getElementById('tour');
-const tourStepEl = document.getElementById('tourStep');
-const tourIlloEl = document.getElementById('tourIllo');
-const tourTitleEl = document.getElementById('tourTitle');
-const tourBodyEl = document.getElementById('tourBody');
-const tourDotsEl = document.getElementById('tourDots');
-const tourPrevBtn = document.getElementById('tourPrev');
-const tourNextBtn = document.getElementById('tourNext');
-const tourSkipBtn = document.getElementById('tourSkip');
-let tourStep = 0;
-
-function renderTour(){
-  const s = TOUR[tourStep];
-  const num = String(tourStep+1).padStart(2,'0');
-  const tot = String(TOUR.length).padStart(2,'0');
-  tourStepEl.textContent = `${num} · ${tot}`;
-  tourIlloEl.textContent = s.illo;
-  tourTitleEl.innerHTML = s.title;
-  tourBodyEl.innerHTML = s.body;
-  tourDotsEl.innerHTML = TOUR.map((_,i)=>`<div class="dot ${i===tourStep?'on':''}"></div>`).join('');
-  tourPrevBtn.style.visibility = tourStep === 0 ? 'hidden' : 'visible';
-  tourNextBtn.textContent = tourStep === TOUR.length - 1 ? 'Got it  ✓' : 'Next →';
-}
-function startTour(){ tourStep = 0; renderTour(); tourEl.classList.add('show'); }
-function endTour(){ tourEl.classList.remove('show'); localStorage.setItem('wiAgentsTourDone', '1'); }
-tourPrevBtn.addEventListener('click', () => { if (tourStep > 0) { tourStep--; renderTour(); } });
-tourNextBtn.addEventListener('click', () => { if (tourStep < TOUR.length - 1) { tourStep++; renderTour(); } else endTour(); });
-tourSkipBtn.addEventListener('click', endTour);
-helpBtn.addEventListener('click', startTour);
+<script type="importmap">
+{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}
 </script>
+<script type="module" src="scene.js"></script>
+<script src="dashboard.js"></script>
 </body>
 </html>
