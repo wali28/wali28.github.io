@@ -13,6 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fraunces:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="lib/supabase.min.js"></script>
 <style>
 :root{
   --bg:#0a0a0d;
@@ -502,12 +503,11 @@ footer{position:relative;z-index:5;padding:60px 40px 40px;border-top:1px solid v
   <div class="foot-sub">Based in Turin · ESCP Business School · Available remote worldwide</div>
 </footer>
 
-<script type="module">
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.6';
-
+<script>
+(function(){
 const SUPABASE_URL = 'https://bniudmwlpaqqpthsgppv.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJuaXVkbXdscGFxcXB0aHNncHB2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMzYzNjcsImV4cCI6MjA4OTcxMjM2N30.WaNKfPUgUBv2HHt6KlbERVoTEGO2_YQnC4GlXCIxBhg';
-const supa = createClient(SUPABASE_URL, SUPABASE_ANON);
+const supa = (window.supabase && window.supabase.createClient) ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON) : null;
 
 // ─────────── nav + progress ───────────
 const nav=document.getElementById('nav'),prog=document.getElementById('prog');
@@ -660,6 +660,7 @@ form.addEventListener('submit',async e=>{
   form.reset();
   setTimeout(()=>{submit.disabled=false;submit.textContent='Send it →';},6000);
 });
+})();
 </script>
 </body>
 </html>

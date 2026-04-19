@@ -12,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:ital,wght@0,400;0,500;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="lib/supabase.min.js"></script>
 <style>
 :root{
   --bg:#0a0a0d;
@@ -216,17 +217,16 @@ nav{position:sticky;top:0;left:0;right:0;z-index:50;padding:18px 40px;display:fl
 
 <div class="toast" id="toast"></div>
 
-<script type="module">
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.6';
-
+<script>
+(function(){
 const SUPABASE_URL = 'https://bniudmwlpaqqpthsgppv.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJuaXVkbXdscGFxcXB0aHNncHB2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMzYzNjcsImV4cCI6MjA4OTcxMjM2N30.WaNKfPUgUBv2HHt6KlbERVoTEGO2_YQnC4GlXCIxBhg';
-const supa = createClient(SUPABASE_URL, SUPABASE_ANON);
 
-// Clear any stale session from an earlier backend state
-if (sessionStorage.getItem('wiAdminPass')) {
-  // keep it — auto-unlock will try and clear if invalid
+if (!window.supabase || !window.supabase.createClient) {
+  document.body.innerHTML = '<div style="max-width:500px;margin:80px auto;padding:30px;font-family:system-ui;color:#fff;background:#2a0e0e;border:1px solid #6e2b2b;border-radius:12px"><h2 style="margin:0 0 10px">Supabase library didn\u2019t load.</h2><p>The self-hosted <code>lib/supabase.min.js</code> file failed to fetch. Try a hard refresh (\u2318+Shift+R). If it keeps failing, the file may be missing from the deploy.</p></div>';
+  return;
 }
+const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 const gate=document.getElementById('gate');
 const dash=document.getElementById('dash');
@@ -486,6 +486,7 @@ setInterval(async()=>{
   if(!adminPass||!dash.classList.contains('show')) return;
   try{ bookings = await tryAuth(adminPass); render(); }catch(e){}
 },60000);
+})();
 </script>
 </body>
 </html>
