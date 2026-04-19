@@ -1,0 +1,7 @@
+<svg viewBox="0 0 340 80" xmlns="http://www.w3.org/2000/svg" aria-label="Fjord logo">
+  <g>
+    <path d="M 5 60 L 28 36 L 46 50 L 72 18 L 98 44 L 116 26 L 140 60 Z" fill="none" stroke="#1C2528" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="116" cy="14" r="4" fill="#C26B3F"/>
+    <text x="170" y="58" font-family="Fraunces, Times New Roman, serif" font-size="48" font-weight="400" fill="#1C2528" letter-spacing="-1">Fjord</text>
+  </g>
+</svg>

@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Fjord — Brand Guidelines</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:#F5F3EE;color:#1C2528;font-family:"Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.55}
+.page{max-width:1100px;margin:0 auto;padding:80px 60px}
+header{margin-bottom:80px;text-align:center}
+.mark{width:88px;height:88px;margin:0 auto 24px;display:grid;place-items:center;background:#1C2528;border-radius:50%}
+.mark svg{width:56px;height:56px}
+h1{font-family:"Fraunces";font-weight:400;font-size:72px;letter-spacing:-0.03em;line-height:0.98}
+h1 em{font-style:italic;color:#5B7E85}
+.sub{font-size:16px;color:#5B7E85;margin-top:14px;letter-spacing:0.04em}
+section{margin-bottom:72px;border-top:1px solid #D9D4C9;padding-top:40px}
+.sec-num{font-family:"Fraunces";font-style:italic;font-size:13px;color:#96A3A6;letter-spacing:0.14em;font-weight:500;margin-bottom:8px;text-transform:uppercase}
+h2{font-family:"Fraunces";font-weight:400;font-size:38px;letter-spacing:-0.02em;line-height:1.05;margin-bottom:16px}
+h2 em{font-style:italic;color:#5B7E85}
+.lead{font-size:16px;color:#4E5A5D;max-width:680px;margin-bottom:32px;line-height:1.7}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:20px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:20px}
+.swatch{border-radius:12px;padding:24px 20px;height:180px;display:flex;flex-direction:column;justify-content:flex-end}
+.swatch .name{font-weight:600;font-size:15px;letter-spacing:-0.01em}
+.swatch .hex{font-family:"JetBrains Mono",monospace;font-size:11px;opacity:0.7;margin-top:3px;letter-spacing:0.04em}
+.swatch.shore{background:#F5F3EE;color:#1C2528;border:1px solid #D9D4C9}
+.swatch.ink{background:#1C2528;color:#F5F3EE}
+.swatch.fjord{background:#5B7E85;color:#F5F3EE}
+.swatch.mist{background:#C9D3D4;color:#1C2528}
+.swatch.ember{background:#C26B3F;color:#F5F3EE}
+.swatch.moss{background:#7F8B6B;color:#F5F3EE}
+.type-row{padding:20px 0;border-bottom:1px solid #D9D4C9;display:grid;grid-template-columns:160px 1fr;gap:30px;align-items:baseline}
+.type-row .meta{font-family:"JetBrains Mono",monospace;font-size:11px;color:#96A3A6;letter-spacing:0.08em;text-transform:uppercase;font-weight:600}
+.d-xl{font-family:"Fraunces";font-weight:400;font-size:72px;letter-spacing:-0.03em;line-height:0.95}
+.d-xl em{font-style:italic}
+.d-lg{font-family:"Fraunces";font-weight:400;font-size:44px;letter-spacing:-0.02em;line-height:1.05}
+.d-md{font-family:"Fraunces";font-weight:500;font-size:28px;letter-spacing:-0.015em}
+.h-lg{font-family:"Inter";font-weight:600;font-size:20px;letter-spacing:-0.01em}
+.b-lg{font-family:"Inter";font-weight:400;font-size:16px;line-height:1.6;color:#4E5A5D}
+.b-sm{font-family:"Inter";font-weight:400;font-size:13px;color:#5B7E85}
+.mono-sm{font-family:"JetBrains Mono",monospace;font-size:11.5px;letter-spacing:0.06em;color:#5B7E85;text-transform:uppercase;font-weight:600}
+.voice-card{background:#fff;border:1px solid #D9D4C9;border-radius:14px;padding:28px;display:flex;flex-direction:column;gap:12px}
+.voice-card.good{border-color:#7F8B6B;border-width:1.5px}
+.voice-card.bad{border-color:rgba(194,107,63,0.4);border-style:dashed}
+.voice-label{font-family:"Fraunces";font-style:italic;font-size:13px;letter-spacing:0.12em;font-weight:500;text-transform:uppercase}
+.voice-card.good .voice-label{color:#7F8B6B}
+.voice-card.bad .voice-label{color:#C26B3F}
+.voice-phrase{font-family:"Fraunces";font-weight:400;font-style:italic;font-size:22px;line-height:1.2;letter-spacing:-0.01em}
+.voice-why{font-size:13px;color:#4E5A5D;line-height:1.55}
+.logo-demo{background:#fff;border:1px solid #D9D4C9;border-radius:12px;padding:36px;display:grid;place-items:center;min-height:160px}
+.logo-demo.dark{background:#1C2528}
+.logo-demo.shore{background:#F5F3EE}
+.logo-demo.fjord{background:#5B7E85}
+.logo-demo svg{max-height:68px;width:auto}
+.principle{padding:24px;background:#fff;border:1px solid #D9D4C9;border-radius:12px}
+.principle .ord{font-family:"Fraunces";font-style:italic;font-size:36px;color:#5B7E85;line-height:1;font-weight:400}
+.principle h4{font-family:"Inter";font-weight:600;font-size:16px;margin:10px 0 6px;letter-spacing:-0.01em}
+.principle p{font-size:13px;color:#4E5A5D;line-height:1.55}
+footer{margin-top:100px;padding-top:40px;border-top:1px solid #D9D4C9;text-align:center;font-family:"JetBrains Mono",monospace;font-size:11px;color:#96A3A6;letter-spacing:0.1em}
+footer a{color:#5B7E85}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <div class="mark">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <path d="M 15 70 L 28 50 L 38 60 L 52 34 L 66 52 L 76 42 L 85 70 Z" fill="none" stroke="#F5F3EE" stroke-width="4" stroke-linejoin="round"/>
+      <circle cx="72" cy="28" r="4" fill="#F5F3EE"/>
+    </svg>
+  </div>
+  <h1>Fjord</h1>
+  <div class="sub">— brand guidelines · v1 · april 2026 —</div>
+</header>
+
+<section>
+  <div class="sec-num">01 — the premise</div>
+  <h2>A meditation app <em>for people who hate meditation apps.</em></h2>
+  <p class="lead">Fjord is what you open when you want to think, not when you want an instructor. No streaks. No gamification. No sleep-story narrators whispering at you. Just a calm place, a few sounds from the north, and five minutes that actually change your head. We build for the people who left Calm and Headspace — and want something that respects them.</p>
+
+  <div class="grid-3">
+    <div class="principle"><div class="ord">01</div><h4>Not bossy.</h4><p>No badges, no "you're on a 7-day streak." The app doesn't grade you. You come when you want.</p></div>
+    <div class="principle"><div class="ord">02</div><h4>Northern-quiet.</h4><p>Inspired by the feeling of a cold morning by a fjord — spacious, unhurried, without performance.</p></div>
+    <div class="principle"><div class="ord">03</div><h4>Trust adults.</h4><p>Full sessions are silent by default. Voice is an option, never the centerpiece.</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-num">02 — voice</div>
+  <h2>Sounds <em>like a friend who reads more than you do.</em></h2>
+  <p class="lead">Warm but restrained. Direct without being brusque. Never performative, never hype. Sentences are short. Commas are used sparingly.</p>
+
+  <div class="grid-2">
+    <div class="voice-card good">
+      <div class="voice-label">we say</div>
+      <div class="voice-phrase">&ldquo;Sit with it for five minutes. Then decide.&rdquo;</div>
+      <div class="voice-why">Quiet invitation. Respects that the user is an adult who makes their own choices.</div>
+    </div>
+    <div class="voice-card bad">
+      <div class="voice-label">we don&rsquo;t say</div>
+      <div class="voice-phrase">&ldquo;Unlock your inner calm with today&rsquo;s guided session!&rdquo;</div>
+      <div class="voice-why">Salesy. Exclamation mark. "Unlock" implies gamification we don&rsquo;t do. Reads like every other app.</div>
+    </div>
+    <div class="voice-card good">
+      <div class="voice-label">we say</div>
+      <div class="voice-phrase">&ldquo;We kept the screen black because the session asks for that.&rdquo;</div>
+      <div class="voice-why">Explains design choices matter-of-factly. Treats the user as someone who cares about craft.</div>
+    </div>
+    <div class="voice-card bad">
+      <div class="voice-label">we don&rsquo;t say</div>
+      <div class="voice-phrase">&ldquo;Crush your mindfulness goals 🎯&rdquo;</div>
+      <div class="voice-why">Emoji-salesy, goal-language we reject, "crush" is violent. Exact opposite of the brand.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-num">03 — colour</div>
+  <h2>Five tones, <em>three of them quiet.</em></h2>
+  <p class="lead">Shore (warm cream) is the ground. Ink is the body text. Fjord is the brand. Mist is the pause. Ember and Moss appear <em>once</em> per screen, never together.</p>
+
+  <div class="grid-3">
+    <div class="swatch shore"><div class="name">Shore</div><div class="hex">#F5F3EE</div></div>
+    <div class="swatch ink"><div class="name">Ink</div><div class="hex">#1C2528</div></div>
+    <div class="swatch fjord"><div class="name">Fjord</div><div class="hex">#5B7E85</div></div>
+    <div class="swatch mist"><div class="name">Mist</div><div class="hex">#C9D3D4</div></div>
+    <div class="swatch ember"><div class="name">Ember (action)</div><div class="hex">#C26B3F</div></div>
+    <div class="swatch moss"><div class="name">Moss (success)</div><div class="hex">#7F8B6B</div></div>
+  </div>
+  <p class="b-sm" style="margin-top:16px">Rule of one: Ember appears only on the single moment of next-action per screen. Moss appears only after something has completed. Never use both on the same screen.</p>
+</section>
+
+<section>
+  <div class="sec-num">04 — typography</div>
+  <h2>Fraunces <em>speaks</em>, Inter works.</h2>
+  <p class="lead">Fraunces (display, with italics) carries the brand voice — warm, literary, slightly old-world. Inter carries the work — clean, dense-readable, does not draw attention to itself. Never use Fraunces for body text.</p>
+
+  <div class="type-row"><div class="meta">D-XL / 72 · Fraunces</div><div class="d-xl">Sit with it <em>for five.</em></div></div>
+  <div class="type-row"><div class="meta">D-LG / 44</div><div class="d-lg">Not bossy. Northern-quiet.</div></div>
+  <div class="type-row"><div class="meta">D-MD / 28</div><div class="d-md">Today is mostly silence.</div></div>
+  <div class="type-row"><div class="meta">H-LG / 20 · Inter</div><div class="h-lg">Five minutes, at your pace</div></div>
+  <div class="type-row"><div class="meta">BODY / 16</div><div class="b-lg">Body copy carries the work of the product. It should be direct, unfussy, and calm. We write short sentences. We respect the reader's time, and we don't perform.</div></div>
+  <div class="type-row"><div class="meta">MONO / 11.5</div><div class="mono-sm">SESSION · 05:00 · REMAINING</div></div>
+</section>
+
+<section>
+  <div class="sec-num">05 — mark</div>
+  <h2>Five peaks <em>and a single sun.</em></h2>
+  <p class="lead">The logo is a stylized horizon-scape — jagged peaks that could be mountains, could be a waveform, could be vital signs. The sun is a single dot that never touches the line. Five peaks, not because of meaning, because it counts well.</p>
+
+  <div class="grid-3">
+    <div class="logo-demo">
+      <svg viewBox="0 0 340 80" xmlns="http://www.w3.org/2000/svg">
+        <g>
+          <path d="M 5 60 L 28 36 L 46 50 L 72 18 L 98 44 L 116 26 L 140 60 Z" fill="none" stroke="#1C2528" stroke-width="3" stroke-linejoin="round"/>
+          <circle cx="116" cy="14" r="4" fill="#C26B3F"/>
+          <text x="170" y="58" font-family="Fraunces" font-size="48" font-weight="400" fill="#1C2528" letter-spacing="-1">Fjord</text>
+        </g>
+      </svg>
+    </div>
+    <div class="logo-demo dark">
+      <svg viewBox="0 0 340 80" xmlns="http://www.w3.org/2000/svg">
+        <g>
+          <path d="M 5 60 L 28 36 L 46 50 L 72 18 L 98 44 L 116 26 L 140 60 Z" fill="none" stroke="#F5F3EE" stroke-width="3" stroke-linejoin="round"/>
+          <circle cx="116" cy="14" r="4" fill="#C26B3F"/>
+          <text x="170" y="58" font-family="Fraunces" font-size="48" font-weight="400" fill="#F5F3EE" letter-spacing="-1">Fjord</text>
+        </g>
+      </svg>
+    </div>
+    <div class="logo-demo fjord">
+      <svg viewBox="0 0 340 80" xmlns="http://www.w3.org/2000/svg">
+        <g>
+          <path d="M 5 60 L 28 36 L 46 50 L 72 18 L 98 44 L 116 26 L 140 60 Z" fill="none" stroke="#F5F3EE" stroke-width="3" stroke-linejoin="round"/>
+          <circle cx="116" cy="14" r="4" fill="#F5F3EE"/>
+          <text x="170" y="58" font-family="Fraunces" font-size="48" font-weight="400" fill="#F5F3EE" letter-spacing="-1">Fjord</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <div class="grid-4" style="margin-top:24px">
+    <div class="logo-demo shore" style="min-height:120px">
+      <svg viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg">
+        <path d="M 5 45 L 20 26 L 34 37 L 52 14 L 70 32 L 82 22 L 95 45 Z" fill="none" stroke="#1C2528" stroke-width="3" stroke-linejoin="round"/>
+        <circle cx="82" cy="12" r="3.5" fill="#C26B3F"/>
+      </svg>
+    </div>
+    <div class="logo-demo dark" style="min-height:120px">
+      <svg viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg">
+        <path d="M 5 45 L 20 26 L 34 37 L 52 14 L 70 32 L 82 22 L 95 45 Z" fill="none" stroke="#F5F3EE" stroke-width="3" stroke-linejoin="round"/>
+        <circle cx="82" cy="12" r="3.5" fill="#C26B3F"/>
+      </svg>
+    </div>
+    <div class="logo-demo shore" style="min-height:120px">
+      <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="40" cy="40" r="36" fill="#1C2528"/>
+        <path d="M 14 52 L 24 38 L 32 46 L 44 28 L 56 42 L 62 34 L 68 52" fill="none" stroke="#F5F3EE" stroke-width="2.5" stroke-linejoin="round"/>
+        <circle cx="62" cy="28" r="2.5" fill="#C26B3F"/>
+      </svg>
+    </div>
+    <div class="logo-demo shore" style="min-height:120px">
+      <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+        <rect x="8" y="8" width="64" height="64" rx="14" fill="#5B7E85"/>
+        <path d="M 18 54 L 28 38 L 36 46 L 46 28 L 54 42 L 60 34 L 66 54" fill="none" stroke="#F5F3EE" stroke-width="2.5" stroke-linejoin="round"/>
+        <circle cx="60" cy="28" r="2.5" fill="#F5F3EE"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-num">06 — motion</div>
+  <h2>Everything <em>exhales.</em></h2>
+  <p class="lead">Transitions should feel like a breath out — never a pop, never a bounce. Default 480ms with <code style="font-family:'JetBrains Mono';font-size:13px;color:#5B7E85">cubic-bezier(0.2, 0.6, 0.2, 1)</code>. Where an interaction needs delight (session completion), add a single soft scale-up of the Moss ring to 1.04× over 900ms and back. Never more than one piece in motion at a time.</p>
+</section>
+
+<footer>
+  FJORD · BRAND.V1 · 2026-04-19 · MESMERIZE · <a href="https://wali28.github.io/">wali28.github.io</a>
+</footer>
+
+</div>
+</body>
+</html>

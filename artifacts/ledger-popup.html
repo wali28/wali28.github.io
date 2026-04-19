@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Ledger HQ · popup</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:#0a0c10;color:#e8eaf0;font-family:-apple-system,"Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+body{width:380px;min-height:560px;padding:0}
+.hd{padding:18px 20px 14px;border-bottom:1px solid #1b1f26;display:flex;justify-content:space-between;align-items:center}
+.logo{font-weight:700;font-size:14px;letter-spacing:-0.01em;display:flex;gap:8px;align-items:center}
+.logo i{width:18px;height:18px;border-radius:5px;background:linear-gradient(135deg,#4dffbd,#00b8ff);display:inline-block}
+.settings{color:#6b7280;font-size:13px;cursor:pointer}
+.sum{padding:16px 20px;border-bottom:1px solid #1b1f26;background:linear-gradient(180deg,rgba(77,255,189,0.06),transparent)}
+.sum-label{font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:#6b7280;font-weight:600}
+.sum-val{font-size:32px;font-weight:700;margin-top:6px;letter-spacing:-0.02em}
+.sum-val .c{color:#6b7280;font-weight:500;font-size:18px}
+.sum-sub{font-size:11.5px;color:#6b7280;margin-top:3px}
+.sum-sub b{color:#ffa84a}
+.list{padding:6px 0}
+.item{padding:13px 20px;border-bottom:1px solid #1b1f26;display:grid;grid-template-columns:32px 1fr auto;gap:12px;align-items:center;cursor:pointer;transition:background 0.15s}
+.item:hover{background:rgba(255,255,255,0.02)}
+.item:last-child{border-bottom:0}
+.icn{width:32px;height:32px;border-radius:7px;display:grid;place-items:center;font-weight:700;font-size:13px;color:#000}
+.icn.n{background:#ffa84a}
+.icn.f{background:#9cff7a}
+.icn.s{background:#7dd3ff}
+.icn.v{background:#e8eaf0}
+.icn.a{background:#4dffbd}
+.icn.o{background:#ff8ae8}
+.name{font-weight:600;font-size:13.5px;letter-spacing:-0.005em}
+.meta{font-size:11px;color:#6b7280;margin-top:2px}
+.meta .dot{color:#3a4150;margin:0 5px}
+.right{text-align:right}
+.price{font-weight:700;font-size:13.5px;font-variant-numeric:tabular-nums}
+.cycle{font-size:10px;color:#6b7280;letter-spacing:0.04em;margin-top:2px}
+.badge{display:inline-block;font-size:9.5px;padding:1px 6px;background:rgba(255,168,74,0.18);color:#ffa84a;border-radius:3px;letter-spacing:0.04em;font-weight:700;margin-top:4px;text-transform:uppercase}
+.badge.soon{background:rgba(255,68,97,0.18);color:#ff8a9c}
+.actions{padding:14px 20px;border-top:1px solid #1b1f26;background:#0d0f14;display:flex;gap:8px}
+.actions button{flex:1;background:transparent;border:1px solid #1b1f26;color:#e8eaf0;font-family:inherit;font-size:12px;padding:9px;border-radius:5px;cursor:pointer;transition:all 0.15s;font-weight:500}
+.actions button:hover{border-color:#4dffbd;color:#4dffbd}
+.actions button.p{background:#4dffbd;color:#000;border-color:#4dffbd;font-weight:700}
+.actions button.p:hover{background:#7dffcc}
+</style>
+</head>
+<body>
+
+<div class="hd">
+  <div class="logo"><i></i>Ledger HQ</div>
+  <div class="settings">⚙</div>
+</div>
+
+<div class="sum">
+  <div class="sum-label">Monthly spend</div>
+  <div class="sum-val">€<span>247</span><span class="c">.80</span></div>
+  <div class="sum-sub">Across <b>12 subscriptions</b> · €2,973.60/yr</div>
+</div>
+
+<div class="list">
+  <div class="item">
+    <div class="icn n">N</div>
+    <div>
+      <div class="name">Notion</div>
+      <div class="meta">Team plan<span class="dot">·</span>renews in <b>3 days</b><span class="badge soon">renewing</span></div>
+    </div>
+    <div class="right">
+      <div class="price">€16.00</div>
+      <div class="cycle">monthly</div>
+    </div>
+  </div>
+  <div class="item">
+    <div class="icn f">F</div>
+    <div>
+      <div class="name">Figma</div>
+      <div class="meta">Professional<span class="dot">·</span>renews May 2</div>
+    </div>
+    <div class="right">
+      <div class="price">€15.00</div>
+      <div class="cycle">monthly</div>
+    </div>
+  </div>
+  <div class="item">
+    <div class="icn a">A</div>
+    <div>
+      <div class="name">Anthropic (Claude)</div>
+      <div class="meta">Pro<span class="dot">·</span>renews May 7</div>
+    </div>
+    <div class="right">
+      <div class="price">€20.00</div>
+      <div class="cycle">monthly</div>
+    </div>
+  </div>
+  <div class="item">
+    <div class="icn v">V</div>
+    <div>
+      <div class="name">Vercel</div>
+      <div class="meta">Pro<span class="dot">·</span>renews May 11</div>
+    </div>
+    <div class="right">
+      <div class="price">€20.00</div>
+      <div class="cycle">monthly</div>
+    </div>
+  </div>
+  <div class="item">
+    <div class="icn s">S</div>
+    <div>
+      <div class="name">Spotify</div>
+      <div class="meta">Premium Duo<span class="dot">·</span>renews May 14</div>
+    </div>
+    <div class="right">
+      <div class="price">€14.99</div>
+      <div class="cycle">monthly</div>
+    </div>
+  </div>
+  <div class="item">
+    <div class="icn o">O</div>
+    <div>
+      <div class="name">OpenAI (ChatGPT)</div>
+      <div class="meta">Plus<span class="dot">·</span>renews May 20</div>
+    </div>
+    <div class="right">
+      <div class="price">€22.00</div>
+      <div class="cycle">monthly</div>
+    </div>
+  </div>
+  <div class="item">
+    <div class="icn f">C</div>
+    <div>
+      <div class="name">Canva</div>
+      <div class="meta">Pro (yearly)<span class="dot">·</span>renews Aug 4</div>
+    </div>
+    <div class="right">
+      <div class="price">€109.99</div>
+      <div class="cycle">annual · €9.17/mo</div>
+    </div>
+  </div>
+</div>
+
+<div class="actions">
+  <button>Rescan inbox</button>
+  <button class="p">Export CSV</button>
+</div>
+
+</body>
+</html>
