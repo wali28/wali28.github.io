@@ -1,0 +1,830 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>The Warm Study — an interactive story</title>
+<meta name="description" content="A scroll-driven 3D interior experience. Move through time from dawn to dusk." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:#050309;color:#f5efe1;font-family:"Inter",-apple-system,system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{min-height:100vh}
+::selection{background:#e8a962;color:#1a0e05}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+
+canvas.three{position:fixed;inset:0;z-index:1;pointer-events:none}
+
+.grain{position:fixed;inset:0;z-index:50;opacity:0.07;mix-blend-mode:overlay;pointer-events:none;
+  background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3"/></filter><rect width="220" height="220" filter="url(%23n)"/></svg>')}
+
+/* ─────────── HUD ─────────── */
+.hud{position:fixed;top:24px;left:0;right:0;z-index:40;padding:0 40px;display:flex;justify-content:space-between;align-items:center;font-size:11px;letter-spacing:0.22em;text-transform:uppercase;font-weight:600;color:rgba(245,239,225,0.55);pointer-events:none}
+.hud .ctr{display:flex;gap:18px;align-items:center}
+.hud .dot{width:5px;height:5px;border-radius:50%;background:#e8a962;box-shadow:0 0 10px #e8a962;animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{50%{opacity:0.4}}
+.hud-right{display:flex;gap:20px;pointer-events:auto}
+.hud-right a{color:rgba(245,239,225,0.55);transition:color 0.3s}
+.hud-right a:hover{color:#e8a962}
+.time-ind{position:fixed;bottom:24px;left:40px;z-index:40;font-family:"Fraunces";font-style:italic;font-size:13px;color:rgba(245,239,225,0.55);letter-spacing:0.06em;pointer-events:none;transition:color 0.6s}
+.time-ind .t{font-family:"JetBrains Mono",monospace;color:#e8a962;font-style:normal;margin-left:6px;font-weight:500}
+.scroll-hint{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:40;font-size:10px;letter-spacing:0.34em;text-transform:uppercase;color:rgba(245,239,225,0.5);font-weight:600;pointer-events:none;animation:bob 2.4s ease-in-out infinite;transition:opacity 0.6s}
+.scroll-hint.hide{opacity:0}
+@keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(5px)}}
+.progress{position:fixed;top:0;left:0;height:1px;background:#e8a962;width:0;z-index:45;transition:width 0.1s linear}
+
+/* ─────────── narrative sections ─────────── */
+.story{position:relative;z-index:10;pointer-events:none}
+.act{min-height:100vh;padding:0 48px;display:grid;align-items:center;position:relative}
+.act .copy{max-width:540px;will-change:transform,opacity}
+.act .eyebrow{font-family:"Fraunces";font-style:italic;font-size:14px;color:#e8a962;letter-spacing:0.2em;font-weight:500;margin-bottom:16px;text-transform:uppercase}
+.act h2{font-family:"Fraunces";font-weight:400;font-size:clamp(44px,6.5vw,96px);line-height:0.98;letter-spacing:-0.035em;color:#f5efe1;margin-bottom:20px}
+.act h2 em{font-style:italic}
+.act h2 .sans{font-family:"Inter";font-style:normal;font-weight:700;letter-spacing:-0.04em}
+.act p{font-size:18px;line-height:1.65;color:rgba(245,239,225,0.75);max-width:480px;font-weight:400}
+.act.left .copy{justify-self:start}
+.act.right .copy{justify-self:end;text-align:right}
+.act.right .copy p{margin-left:auto}
+.act.center{text-align:center;place-items:center}
+.act.center .copy{max-width:660px}
+.act.center .copy p{margin:0 auto}
+
+/* intro / outro */
+.intro{min-height:120vh;display:grid;place-items:center;padding:0 40px;text-align:center;position:relative;z-index:10;pointer-events:none}
+.intro .brand{font-size:12px;letter-spacing:0.35em;text-transform:uppercase;color:#e8a962;font-weight:600;margin-bottom:18px}
+.intro h1{font-family:"Fraunces";font-weight:400;font-style:italic;font-size:clamp(64px,12vw,176px);line-height:0.92;letter-spacing:-0.04em;margin:0}
+.intro h1 .sans{font-family:"Inter";font-style:normal;font-weight:700;letter-spacing:-0.045em}
+.intro .sub{margin-top:28px;font-size:18px;color:rgba(245,239,225,0.55);max-width:520px;line-height:1.6;font-weight:400}
+
+.outro{min-height:100vh;display:grid;place-items:center;padding:100px 40px;text-align:center;position:relative;z-index:10;pointer-events:auto}
+.outro .credit{font-size:11px;letter-spacing:0.3em;text-transform:uppercase;color:rgba(245,239,225,0.4);font-weight:600;margin-bottom:18px}
+.outro h2{font-family:"Fraunces";font-weight:400;font-style:italic;font-size:clamp(48px,8vw,116px);line-height:0.95;letter-spacing:-0.03em}
+.outro h2 .sans{font-family:"Inter";font-style:normal;font-weight:700}
+.outro .sig{margin-top:32px;font-family:"Fraunces";font-style:italic;font-size:18px;color:rgba(245,239,225,0.65)}
+.outro .back{display:inline-block;margin-top:36px;padding:14px 28px;border:1px solid rgba(245,239,225,0.18);border-radius:100px;font-size:14px;color:rgba(245,239,225,0.8);font-weight:500;transition:all 0.3s;cursor:pointer}
+.outro .back:hover{border-color:#e8a962;color:#e8a962;background:rgba(232,169,98,0.06)}
+
+@media(max-width:720px){
+  .hud,.time-ind,.scroll-hint{font-size:10px}
+  .hud{padding:0 22px}
+  .time-ind{left:22px}
+  .act{padding:0 24px}
+}
+</style>
+</head>
+<body>
+
+<canvas class="three" id="three"></canvas>
+<div class="grain"></div>
+<div class="progress" id="progress"></div>
+
+<div class="hud">
+  <div class="ctr"><div class="dot"></div>The Warm Study · interactive</div>
+  <div class="hud-right"><a href="/">← portfolio</a></div>
+</div>
+<div class="time-ind">Time of day <span class="t" id="timeLabel">5:42 AM</span></div>
+<div class="scroll-hint" id="scrollHint">scroll to begin</div>
+
+<!-- ─────────── narrative ─────────── -->
+<div class="story">
+
+  <section class="intro">
+    <div>
+      <div class="brand">An interactive story · 2026</div>
+      <h1>The Warm<br><em>Study.</em></h1>
+      <p class="sub">One room. Twelve hours of light. Scroll through the day — the sun moves, the lamp flickers on, dust drifts in the window's beam. Cursor to look around.</p>
+    </div>
+  </section>
+
+  <section class="act left" id="act1">
+    <div class="copy">
+      <div class="eyebrow">05:42 · dawn</div>
+      <h2>The room is <em>still dark.</em></h2>
+      <p>Outside, the first blue light before the sun. The window is a quiet rectangle. The desk waits. No one's awake yet — but the day is already on its way in.</p>
+    </div>
+  </section>
+
+  <section class="act right" id="act2">
+    <div class="copy">
+      <div class="eyebrow">07:15 · morning</div>
+      <h2>And then <em>light.</em></h2>
+      <p>Warm amber breaks through the glass. It hits the edge of the desk first, then the books, then the rug. For a few minutes everything has a halo. Nothing needs to be done yet.</p>
+    </div>
+  </section>
+
+  <section class="act left" id="act3">
+    <div class="copy">
+      <div class="eyebrow">13:40 · afternoon</div>
+      <h2>The shadows <em>get long.</em></h2>
+      <p>Midday crosses to late-day. The light is cleaner now, more honest. Whatever you meant to finish is waiting on the desk. This is the moment it actually gets done.</p>
+    </div>
+  </section>
+
+  <section class="act right" id="act4">
+    <div class="copy">
+      <div class="eyebrow">18:20 · golden hour</div>
+      <h2>A little <em>gold</em> left.</h2>
+      <p>The sun lowers. Every surface picks up a warm cast, even the cold ones. The kind of light that makes ordinary rooms feel important. Don't miss it — it only lasts nineteen minutes.</p>
+    </div>
+  </section>
+
+  <section class="act left" id="act5">
+    <div class="copy">
+      <div class="eyebrow">21:00 · dusk</div>
+      <h2>The lamp <em>clicks on.</em></h2>
+      <p>The window turns black. The room's own light takes over — small, warm, close. This is the part of the day that was always worth staying up for. Finish something good. Then close the laptop.</p>
+    </div>
+  </section>
+
+  <section class="outro">
+    <div>
+      <div class="credit">This experience · built with Three.js, GSAP, Lenis</div>
+      <h2>Rooms aren't just<br><em>places.</em> They're<br><span class="sans">moments.</span></h2>
+      <div class="sig">— Waleed Imran · Turin · 2026</div>
+      <a href="/" class="back">← back to portfolio</a>
+    </div>
+  </section>
+
+</div>
+
+<!-- ─────────── 3D + scroll logic ─────────── -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.0.45/dist/lenis.min.js"></script>
+
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+gsap.registerPlugin(ScrollTrigger);
+
+// ═════════════════════════════════════════════════════════
+// SMOOTH SCROLL (Lenis) → GSAP
+// ═════════════════════════════════════════════════════════
+const lenis = new Lenis({ smoothWheel: true, duration: 1.1 });
+lenis.on('scroll', ScrollTrigger.update);
+gsap.ticker.add(t => lenis.raf(t * 1000));
+gsap.ticker.lagSmoothing(0);
+
+// ═════════════════════════════════════════════════════════
+// RENDERER
+// ═════════════════════════════════════════════════════════
+const canvas = document.getElementById('three');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+renderer.setPixelRatio(Math.min(2, window.devicePixelRatio));
+renderer.setSize(innerWidth, innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.15;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x0a0606, 0.05);
+
+const camera = new THREE.PerspectiveCamera(42, innerWidth/innerHeight, 0.1, 200);
+camera.position.set(0, 1.6, 6);
+
+// ═════════════════════════════════════════════════════════
+// LIGHTING — dynamic time-of-day system
+// ═════════════════════════════════════════════════════════
+// Ambient (dark → warm)
+const ambient = new THREE.AmbientLight(0x1a0e10, 0.2);
+scene.add(ambient);
+
+// Hemisphere (sky/ground tint)
+const hemi = new THREE.HemisphereLight(0x3b1f2a, 0x120806, 0.3);
+scene.add(hemi);
+
+// Sun (through window)
+const sun = new THREE.DirectionalLight(0xfff0d6, 0);
+sun.position.set(-14, 8, 6);
+sun.target.position.set(0, 1.2, 0);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.camera.near = 1;  sun.shadow.camera.far = 40;
+sun.shadow.camera.left = -12; sun.shadow.camera.right = 12;
+sun.shadow.camera.top = 12;   sun.shadow.camera.bottom = -12;
+sun.shadow.bias = -0.0005; sun.shadow.radius = 6;
+scene.add(sun, sun.target);
+
+// Lamp (interior, fades on at dusk)
+const lampLight = new THREE.PointLight(0xffb070, 0, 10, 1.8);
+lampLight.position.set(2.2, 1.45, 1.3);
+lampLight.castShadow = true;
+lampLight.shadow.mapSize.set(1024, 1024);
+lampLight.shadow.bias = -0.002;
+scene.add(lampLight);
+
+// Fireplace/mood glow (subtle secondary)
+const glow = new THREE.PointLight(0xff7a4a, 0, 8, 2);
+glow.position.set(-2.8, 0.6, -1);
+scene.add(glow);
+
+// ═════════════════════════════════════════════════════════
+// ROOM — procedural geometry
+// ═════════════════════════════════════════════════════════
+const room = new THREE.Group();
+scene.add(room);
+
+// floor — wood planks (stripes via procedural pattern)
+const floorCanvas = document.createElement('canvas');
+floorCanvas.width = 1024; floorCanvas.height = 1024;
+const fc = floorCanvas.getContext('2d');
+fc.fillStyle = '#3d2418'; fc.fillRect(0, 0, 1024, 1024);
+for (let i = 0; i < 12; i++) {
+  const y = (i / 12) * 1024;
+  const shade = 28 + Math.floor(Math.random() * 28);
+  fc.fillStyle = `rgb(${shade + 25},${shade + 10},${shade})`;
+  fc.fillRect(0, y, 1024, 1024/12);
+  // grain lines
+  fc.globalAlpha = 0.15;
+  fc.strokeStyle = '#1a0a05';
+  for (let g = 0; g < 4; g++) {
+    const gy = y + (g + Math.random()) * (1024/12) / 4;
+    fc.beginPath();
+    fc.moveTo(0, gy);
+    for (let x = 0; x < 1024; x += 40) {
+      fc.lineTo(x, gy + (Math.random() - 0.5) * 4);
+    }
+    fc.stroke();
+  }
+  fc.globalAlpha = 1;
+}
+const floorTex = new THREE.CanvasTexture(floorCanvas);
+floorTex.wrapS = floorTex.wrapT = THREE.RepeatWrapping;
+floorTex.repeat.set(3, 2);
+floorTex.colorSpace = THREE.SRGBColorSpace;
+
+const floor = new THREE.Mesh(
+  new THREE.PlaneGeometry(18, 14),
+  new THREE.MeshStandardMaterial({ map: floorTex, roughness: 0.65, metalness: 0.08 })
+);
+floor.rotation.x = -Math.PI/2;
+floor.receiveShadow = true;
+room.add(floor);
+
+// Walls — warm cream plaster
+const wallMat = new THREE.MeshStandardMaterial({ color: 0x8a6b54, roughness: 0.92, metalness: 0.02 });
+const wallH = 4.2;
+// back wall
+const backWall = new THREE.Mesh(new THREE.PlaneGeometry(18, wallH), wallMat);
+backWall.position.set(0, wallH/2, -7);
+backWall.receiveShadow = true;
+room.add(backWall);
+// left wall (with window hole — we'll use two panels)
+const leftWallTop = new THREE.Mesh(new THREE.PlaneGeometry(14, 1.2), wallMat);
+leftWallTop.rotation.y = Math.PI/2;
+leftWallTop.position.set(-9, wallH - 0.6, 0);
+leftWallTop.receiveShadow = true;
+room.add(leftWallTop);
+const leftWallBot = new THREE.Mesh(new THREE.PlaneGeometry(14, 1), wallMat);
+leftWallBot.rotation.y = Math.PI/2;
+leftWallBot.position.set(-9, 0.5, 0);
+leftWallBot.receiveShadow = true;
+room.add(leftWallBot);
+// left-wall side panels flanking window
+const leftWallFront = new THREE.Mesh(new THREE.PlaneGeometry(5, 2), wallMat);
+leftWallFront.rotation.y = Math.PI/2;
+leftWallFront.position.set(-9, 2.1, -4.5);
+leftWallFront.receiveShadow = true;
+room.add(leftWallFront);
+const leftWallBack = new THREE.Mesh(new THREE.PlaneGeometry(5, 2), wallMat);
+leftWallBack.rotation.y = Math.PI/2;
+leftWallBack.position.set(-9, 2.1, 4.5);
+leftWallBack.receiveShadow = true;
+room.add(leftWallBack);
+// right wall
+const rightWall = new THREE.Mesh(new THREE.PlaneGeometry(14, wallH), wallMat);
+rightWall.rotation.y = -Math.PI/2;
+rightWall.position.set(9, wallH/2, 0);
+rightWall.receiveShadow = true;
+room.add(rightWall);
+// ceiling
+const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(18, 14), new THREE.MeshStandardMaterial({ color: 0x3c2a22, roughness: 0.9 }));
+ceiling.rotation.x = Math.PI/2;
+ceiling.position.set(0, wallH, 0);
+ceiling.receiveShadow = true;
+room.add(ceiling);
+
+// Window frame
+const frameMat = new THREE.MeshStandardMaterial({ color: 0x1e110a, roughness: 0.6, metalness: 0.2 });
+const winW = 4, winH = 2.8;
+const frameT = 0.15;
+const frameBox = (w, h, z) => {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(0.1, h, w), frameMat);
+  m.position.set(-8.96, 2.1, z);
+  m.castShadow = true; m.receiveShadow = true;
+  return m;
+};
+// mullions (cross frame)
+const mH = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.08, winW - 0.2), frameMat);
+mH.position.set(-8.96, 2.1, 0); mH.castShadow = true;
+room.add(mH);
+const mV = new THREE.Mesh(new THREE.BoxGeometry(0.12, winH - 0.2, 0.08), frameMat);
+mV.position.set(-8.96, 2.1, 0); mV.castShadow = true;
+room.add(mV);
+
+// Sky plate (visible through window)
+const skyCanvas = document.createElement('canvas');
+skyCanvas.width = 1024; skyCanvas.height = 1024;
+window._skyCtx = skyCanvas.getContext('2d');
+function paintSky(sunHeight, sunColorHex){
+  const ctx = window._skyCtx;
+  // sun color
+  const [sr, sg, sb] = [parseInt(sunColorHex.slice(1,3),16), parseInt(sunColorHex.slice(3,5),16), parseInt(sunColorHex.slice(5,7),16)];
+  const grd = ctx.createLinearGradient(0, 0, 0, 1024);
+  // depending on time, different gradient
+  if(sunHeight < 0.15){
+    // night/dawn
+    grd.addColorStop(0, '#0a0412');
+    grd.addColorStop(0.6, '#1a0c1e');
+    grd.addColorStop(1, '#2b1822');
+  } else if(sunHeight < 0.4){
+    grd.addColorStop(0, '#2a1926');
+    grd.addColorStop(0.5, '#77436a');
+    grd.addColorStop(1, `rgb(${sr},${sg},${sb})`);
+  } else if(sunHeight < 0.7){
+    grd.addColorStop(0, '#4b6780');
+    grd.addColorStop(0.5, '#a9baca');
+    grd.addColorStop(1, '#e9e2d2');
+  } else if(sunHeight < 0.9){
+    grd.addColorStop(0, '#3a5a78');
+    grd.addColorStop(0.5, '#c48658');
+    grd.addColorStop(1, '#e8a962');
+  } else {
+    grd.addColorStop(0, '#0a0412');
+    grd.addColorStop(0.8, '#1e0c1b');
+    grd.addColorStop(1, '#3c1a22');
+  }
+  ctx.fillStyle = grd; ctx.fillRect(0, 0, 1024, 1024);
+  // sun disc
+  const sunY = 1024 - sunHeight * 800;
+  const sunR = 42;
+  const r = ctx.createRadialGradient(512, sunY, 0, 512, sunY, sunR * 4);
+  r.addColorStop(0, `rgba(${sr},${sg},${sb},1)`);
+  r.addColorStop(0.2, `rgba(${sr},${sg},${sb},0.7)`);
+  r.addColorStop(0.6, `rgba(${sr},${sg},${sb},0.15)`);
+  r.addColorStop(1, `rgba(${sr},${sg},${sb},0)`);
+  ctx.fillStyle = r; ctx.fillRect(0, 0, 1024, 1024);
+  if(sunHeight > 0.15 && sunHeight < 0.9){
+    ctx.beginPath(); ctx.arc(512, sunY, sunR, 0, Math.PI*2);
+    ctx.fillStyle = `rgb(${sr},${sg},${sb})`; ctx.fill();
+  }
+}
+paintSky(0.05, '#4a1a2a');
+const skyTex = new THREE.CanvasTexture(skyCanvas);
+skyTex.colorSpace = THREE.SRGBColorSpace;
+const skyPlate = new THREE.Mesh(
+  new THREE.PlaneGeometry(winW * 3, winH * 3),
+  new THREE.MeshBasicMaterial({ map: skyTex, toneMapped: false })
+);
+skyPlate.rotation.y = Math.PI/2;
+skyPlate.position.set(-16, 2.5, 0);
+room.add(skyPlate);
+
+// Window "glass" (subtle)
+const glass = new THREE.Mesh(
+  new THREE.PlaneGeometry(winW, winH),
+  new THREE.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: 0.06, roughness: 0.02, transmission: 0.9 })
+);
+glass.rotation.y = Math.PI/2;
+glass.position.set(-8.95, 2.1, 0);
+room.add(glass);
+
+// Scene background (matches sky)
+scene.background = skyTex;
+
+// ═════════════════════════════════════════════════════════
+// FURNITURE
+// ═════════════════════════════════════════════════════════
+
+// DESK
+const deskMat = new THREE.MeshStandardMaterial({ color: 0x5a3a25, roughness: 0.55, metalness: 0.1 });
+const deskTop = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.12, 1.5), deskMat);
+deskTop.position.set(2, 1.1, 1);
+deskTop.castShadow = true; deskTop.receiveShadow = true;
+room.add(deskTop);
+[[-1.3, -0.6], [1.3, -0.6], [-1.3, 0.6], [1.3, 0.6]].forEach(([dx, dz]) => {
+  const leg = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1.1, 0.1), deskMat);
+  leg.position.set(2 + dx, 0.55, 1 + dz);
+  leg.castShadow = true; leg.receiveShadow = true;
+  room.add(leg);
+});
+
+// LAMP (base + stem + shade)
+const lampMat = new THREE.MeshStandardMaterial({ color: 0x1a0f08, roughness: 0.4, metalness: 0.7 });
+const lampBase = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.22, 0.05, 24), lampMat);
+lampBase.position.set(2.2, 1.19, 1.3); lampBase.castShadow = true;
+room.add(lampBase);
+const lampStem = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.4, 12), lampMat);
+lampStem.position.set(2.2, 1.39, 1.3); lampStem.castShadow = true;
+room.add(lampStem);
+const shadeMat = new THREE.MeshStandardMaterial({
+  color: 0xf0c590, roughness: 0.8, metalness: 0, emissive: 0x000000, emissiveIntensity: 0, side: THREE.DoubleSide,
+});
+const lampShade = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.32, 0.28, 24, 1, true), shadeMat);
+lampShade.position.set(2.2, 1.72, 1.3); lampShade.castShadow = false;
+room.add(lampShade);
+
+// BOOKS on desk
+const bookColors = [0xb84a3c, 0x3a5a6c, 0xd9a76a, 0x4a3a5c, 0x2e4436];
+const bookGroup = new THREE.Group();
+for (let i = 0; i < 6; i++) {
+  const h = 0.18 + Math.random() * 0.1;
+  const w = 0.14 + Math.random() * 0.05;
+  const d = 0.22 + Math.random() * 0.08;
+  const b = new THREE.Mesh(
+    new THREE.BoxGeometry(w, h, d),
+    new THREE.MeshStandardMaterial({ color: bookColors[i % bookColors.length], roughness: 0.7 })
+  );
+  b.position.set(0.9 + i * 0.16, 1.16 + h/2, 0.8 + Math.random() * 0.2);
+  b.rotation.y = (Math.random() - 0.5) * 0.08;
+  b.castShadow = true; b.receiveShadow = true;
+  bookGroup.add(b);
+}
+room.add(bookGroup);
+
+// A closed laptop on desk (dark rectangle)
+const laptopMat = new THREE.MeshStandardMaterial({ color: 0x2a2a30, roughness: 0.3, metalness: 0.6 });
+const laptop = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.04, 0.8), laptopMat);
+laptop.position.set(2.4, 1.18, 1.2); laptop.castShadow = true; laptop.receiveShadow = true;
+room.add(laptop);
+
+// Small coffee cup
+const cupMat = new THREE.MeshStandardMaterial({ color: 0xf5efe1, roughness: 0.4, metalness: 0.1 });
+const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.08, 0.15, 20), cupMat);
+cup.position.set(1.5, 1.24, 1.4); cup.castShadow = true; cup.receiveShadow = true;
+room.add(cup);
+
+// CHAIR (simplified)
+const chairMat = new THREE.MeshStandardMaterial({ color: 0x3c2418, roughness: 0.7 });
+const chairSeat = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.08, 0.8), chairMat);
+chairSeat.position.set(2, 0.7, 2.4); chairSeat.castShadow = true; chairSeat.receiveShadow = true;
+room.add(chairSeat);
+const chairBack = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.2, 0.08), chairMat);
+chairBack.position.set(2, 1.3, 2.75); chairBack.castShadow = true;
+room.add(chairBack);
+[[-0.35, -0.35], [0.35, -0.35], [-0.35, 0.35], [0.35, 0.35]].forEach(([dx, dz]) => {
+  const leg = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.7, 0.06), chairMat);
+  leg.position.set(2 + dx, 0.35, 2.4 + dz);
+  leg.castShadow = true;
+  room.add(leg);
+});
+
+// BOOKSHELF on back wall
+const shelfMat = new THREE.MeshStandardMaterial({ color: 0x3a2318, roughness: 0.7 });
+const shelf = new THREE.Group();
+const shelfX = -4;
+const shelfBack = new THREE.Mesh(new THREE.BoxGeometry(2.6, 2.4, 0.08), shelfMat);
+shelfBack.position.set(0, 0, -0.1); shelfBack.castShadow = true; shelfBack.receiveShadow = true;
+shelf.add(shelfBack);
+for (let s = 0; s < 3; s++) {
+  const plank = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.06, 0.3), shelfMat);
+  plank.position.set(0, -1 + s * 0.8, 0);
+  plank.castShadow = true; plank.receiveShadow = true;
+  shelf.add(plank);
+  // books on each shelf
+  for (let k = 0; k < 9; k++) {
+    const h = 0.5 + Math.random() * 0.2;
+    const w = 0.14 + Math.random() * 0.06;
+    const b = new THREE.Mesh(
+      new THREE.BoxGeometry(w, h, 0.22),
+      new THREE.MeshStandardMaterial({ color: bookColors[(s + k) % bookColors.length], roughness: 0.7 })
+    );
+    b.position.set(-1.15 + k * 0.26, -1 + s * 0.8 + 0.03 + h/2, 0.04);
+    b.castShadow = true; b.receiveShadow = true;
+    shelf.add(b);
+  }
+}
+shelf.position.set(shelfX, 1.5, -6.8);
+room.add(shelf);
+
+// PAINTING on right wall
+const paintCanvas = document.createElement('canvas');
+paintCanvas.width = 512; paintCanvas.height = 640;
+const pc = paintCanvas.getContext('2d');
+// abstract warm painting
+const pg1 = pc.createLinearGradient(0, 0, 0, 640);
+pg1.addColorStop(0, '#f5d9a8'); pg1.addColorStop(1, '#a0512b');
+pc.fillStyle = pg1; pc.fillRect(0, 0, 512, 640);
+// suggest landscape — hills + sun
+pc.fillStyle = 'rgba(184, 74, 60, 0.5)';
+pc.beginPath(); pc.moveTo(0, 400);
+pc.bezierCurveTo(128, 340, 256, 420, 512, 360);
+pc.lineTo(512, 640); pc.lineTo(0, 640); pc.closePath(); pc.fill();
+pc.fillStyle = 'rgba(74, 44, 36, 0.4)';
+pc.beginPath(); pc.moveTo(0, 480);
+pc.bezierCurveTo(128, 440, 256, 500, 512, 460);
+pc.lineTo(512, 640); pc.lineTo(0, 640); pc.closePath(); pc.fill();
+// sun
+pc.fillStyle = '#f5efe1';
+pc.beginPath(); pc.arc(360, 180, 55, 0, Math.PI*2); pc.fill();
+const paintTex = new THREE.CanvasTexture(paintCanvas);
+paintTex.colorSpace = THREE.SRGBColorSpace;
+const painting = new THREE.Mesh(
+  new THREE.PlaneGeometry(1.4, 1.75),
+  new THREE.MeshStandardMaterial({ map: paintTex, roughness: 0.7 })
+);
+painting.rotation.y = -Math.PI/2;
+painting.position.set(8.93, 2.3, -2);
+painting.receiveShadow = true;
+room.add(painting);
+// painting frame
+const paintFrame = new THREE.Mesh(
+  new THREE.PlaneGeometry(1.58, 1.93),
+  new THREE.MeshStandardMaterial({ color: 0x1a0e08, roughness: 0.5, metalness: 0.3 })
+);
+paintFrame.rotation.y = -Math.PI/2;
+paintFrame.position.set(8.94, 2.3, -2);
+room.add(paintFrame);
+
+// PLANT in pot (near front-right)
+const potMat = new THREE.MeshStandardMaterial({ color: 0x6a3020, roughness: 0.9 });
+const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.22, 0.45, 24), potMat);
+pot.position.set(5.8, 0.23, 2); pot.castShadow = true; pot.receiveShadow = true;
+room.add(pot);
+// leaves — several flat planes at angles
+const leafMat = new THREE.MeshStandardMaterial({ color: 0x2b5a3a, roughness: 0.8, side: THREE.DoubleSide });
+for (let l = 0; l < 14; l++) {
+  const leaf = new THREE.Mesh(new THREE.PlaneGeometry(0.25, 0.6), leafMat);
+  const ang = (l / 14) * Math.PI * 2 + Math.random() * 0.3;
+  const h = 0.55 + Math.random() * 0.5;
+  leaf.position.set(5.8 + Math.cos(ang) * 0.08, h, 2 + Math.sin(ang) * 0.08);
+  leaf.rotation.set(Math.random() * 0.5 - 0.25, ang, Math.random() * 0.5 - 0.25 - Math.PI/6);
+  leaf.castShadow = true;
+  room.add(leaf);
+}
+
+// RUG — warm patterned rectangle on floor
+const rugCanvas = document.createElement('canvas');
+rugCanvas.width = 512; rugCanvas.height = 384;
+const rc = rugCanvas.getContext('2d');
+rc.fillStyle = '#7a3a2e'; rc.fillRect(0, 0, 512, 384);
+// border
+rc.strokeStyle = '#d9a76a'; rc.lineWidth = 12;
+rc.strokeRect(20, 20, 472, 344);
+// subtle diamond pattern
+rc.strokeStyle = 'rgba(217,167,106,0.4)'; rc.lineWidth = 2;
+for (let x = 40; x < 500; x += 60) {
+  for (let y = 40; y < 360; y += 60) {
+    rc.beginPath(); rc.moveTo(x, y - 14); rc.lineTo(x + 14, y); rc.lineTo(x, y + 14); rc.lineTo(x - 14, y); rc.closePath(); rc.stroke();
+  }
+}
+const rugTex = new THREE.CanvasTexture(rugCanvas);
+rugTex.colorSpace = THREE.SRGBColorSpace;
+const rug = new THREE.Mesh(
+  new THREE.PlaneGeometry(4.5, 3),
+  new THREE.MeshStandardMaterial({ map: rugTex, roughness: 0.95 })
+);
+rug.rotation.x = -Math.PI/2;
+rug.position.set(0.5, 0.005, 2);
+rug.receiveShadow = true;
+room.add(rug);
+
+// ═════════════════════════════════════════════════════════
+// DUST MOTES in the sunbeam
+// ═════════════════════════════════════════════════════════
+const dustCount = 160;
+const dustGeom = new THREE.BufferGeometry();
+const dustPos = new Float32Array(dustCount * 3);
+const dustSeed = [];
+for (let i = 0; i < dustCount; i++) {
+  // concentrate roughly in sunbeam cone from window to desk
+  const t = Math.random();
+  const x = -6 + t * 8 + (Math.random() - 0.5) * 2;
+  const y = 2.5 - t * 1.5 + Math.random() * 1.5;
+  const z = -1.5 + (Math.random() - 0.5) * 2;
+  dustPos[i * 3] = x;
+  dustPos[i * 3 + 1] = y;
+  dustPos[i * 3 + 2] = z;
+  dustSeed.push({ px: x, py: y, pz: z, speed: 0.2 + Math.random() * 0.5, phase: Math.random() * Math.PI * 2 });
+}
+dustGeom.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
+const dustMat = new THREE.PointsMaterial({
+  color: 0xffd6a0, size: 0.04, transparent: true, opacity: 0,
+  blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true,
+});
+const dust = new THREE.Points(dustGeom, dustMat);
+scene.add(dust);
+
+// ═════════════════════════════════════════════════════════
+// POST-PROCESSING — bloom for warm glow
+// ═════════════════════════════════════════════════════════
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.5, 0.8, 0.85);
+composer.addPass(bloom);
+composer.addPass(new OutputPass());
+
+// ═════════════════════════════════════════════════════════
+// TIME OF DAY — a single 0..1 value drives the whole scene
+// ═════════════════════════════════════════════════════════
+// Stops: 0=dawn  0.25=morning  0.5=midday  0.75=goldenHour  1.0=dusk
+const TOD = {
+  dawn:      { sunAngle: -0.1, sunHeight: 0.05, sunColor: '#4a1a2a', sunIntensity: 0.12, ambient: 0.12, ambientColor: 0x1a0e10, hemi: 0.3, fogDensity: 0.06, exposure: 0.85, lampGlow: 0, sky: '#2b1822' },
+  morning:   { sunAngle:  0.3, sunHeight: 0.32, sunColor: '#f0a878', sunIntensity: 2.4, ambient: 0.4,  ambientColor: 0x3a2a28, hemi: 0.6, fogDensity: 0.04, exposure: 1.0,  lampGlow: 0, sky: '#ca6c58' },
+  midday:    { sunAngle:  0.65, sunHeight: 0.65, sunColor: '#ffefd2', sunIntensity: 3.0, ambient: 0.55, ambientColor: 0x8a7a68, hemi: 1.0, fogDensity: 0.025, exposure: 1.05, lampGlow: 0, sky: '#c8c4b8' },
+  golden:    { sunAngle:  0.85, sunHeight: 0.82, sunColor: '#ff9e58', sunIntensity: 3.8, ambient: 0.5,  ambientColor: 0x8a4826, hemi: 0.7, fogDensity: 0.035, exposure: 1.15, lampGlow: 0.3, sky: '#c45e34' },
+  dusk:      { sunAngle:  1.05, sunHeight: 0.96, sunColor: '#2a1024', sunIntensity: 0.1, ambient: 0.14, ambientColor: 0x180a14, hemi: 0.2, fogDensity: 0.07, exposure: 0.9, lampGlow: 2.5, sky: '#1e0c1b' },
+};
+
+function lerp(a, b, t){ return a + (b - a) * t; }
+function lerpColor(a, b, t){
+  const A = new THREE.Color(a), B = new THREE.Color(b);
+  return A.lerp(B, t);
+}
+
+function hexFromColor(c){ return '#'+c.getHexString(); }
+
+function applyTimeOfDay(t){
+  // t: 0..1 through the five stops
+  let from, to, local;
+  if (t < 0.25) { from = TOD.dawn;    to = TOD.morning; local = t / 0.25; }
+  else if (t < 0.5)  { from = TOD.morning; to = TOD.midday; local = (t - 0.25) / 0.25; }
+  else if (t < 0.75) { from = TOD.midday;  to = TOD.golden; local = (t - 0.5) / 0.25; }
+  else { from = TOD.golden; to = TOD.dusk; local = (t - 0.75) / 0.25; }
+
+  // sun angle → move position around window axis
+  const ang = lerp(from.sunAngle, to.sunAngle, local);
+  sun.position.set(-14 + Math.cos(ang) * 3, 8 - Math.abs(ang - 0.5) * 4, Math.sin(ang) * 10 - 2);
+
+  const sunC = lerpColor(from.sunColor, to.sunColor, local);
+  sun.color.copy(sunC);
+  sun.intensity = lerp(from.sunIntensity, to.sunIntensity, local);
+
+  ambient.intensity = lerp(from.ambient, to.ambient, local);
+  const ambC = new THREE.Color(from.ambientColor).lerp(new THREE.Color(to.ambientColor), local);
+  ambient.color.copy(ambC);
+  hemi.intensity = lerp(from.hemi, to.hemi, local);
+
+  // lamp intensity (fades on at golden+)
+  lampLight.intensity = lerp(from.lampGlow, to.lampGlow, local) * 2;
+  shadeMat.emissive.setHex(0xffb070);
+  shadeMat.emissiveIntensity = lerp(from.lampGlow, to.lampGlow, local) * 0.6;
+  glow.intensity = lampLight.intensity * 0.4;
+
+  // fog + exposure
+  scene.fog.density = lerp(from.fogDensity, to.fogDensity, local);
+  renderer.toneMappingExposure = lerp(from.exposure, to.exposure, local);
+
+  // fog color tints with sky
+  const skyC = new THREE.Color(from.sky).lerp(new THREE.Color(to.sky), local);
+  scene.fog.color.copy(skyC);
+
+  // bloom tweaks for dusk (amplify lamp glow)
+  bloom.strength = lerp(0.35, 0.9, Math.max(0, (t - 0.65) / 0.35));
+
+  // dust opacity (peaks in morning/golden when sunbeam strongest)
+  const dustVis = Math.max(0, Math.sin(t * Math.PI)) * 0.7;
+  dust.material.opacity = dustVis;
+
+  // repaint sky canvas
+  paintSky(lerp(from.sunHeight, to.sunHeight, local), hexFromColor(sunC));
+  skyTex.needsUpdate = true;
+
+  // time label
+  const hours = ['05:42 AM', '07:15 AM', '13:40 PM', '18:20 PM', '21:00 PM'];
+  const segments = [0, 0.25, 0.5, 0.75, 1];
+  for (let i = 0; i < segments.length - 1; i++) {
+    if (t >= segments[i] && t <= segments[i + 1]) {
+      document.getElementById('timeLabel').textContent = hours[i];
+      break;
+    }
+  }
+}
+applyTimeOfDay(0);
+
+// ═════════════════════════════════════════════════════════
+// CAMERA PATH — scroll drives camera through 5 keyframes
+// ═════════════════════════════════════════════════════════
+// keyframes: {pos, lookAt}
+const KF = [
+  { pos: new THREE.Vector3(-5, 1.6, 7), look: new THREE.Vector3(0, 1.5, 0) },   // 0: entering from left-front
+  { pos: new THREE.Vector3(-2, 1.5, 4), look: new THREE.Vector3(-2, 1.8, -1) }, // 1: look at window area
+  { pos: new THREE.Vector3(0, 1.7, 2.5), look: new THREE.Vector3(2, 1.4, 1.5) }, // 2: look at desk
+  { pos: new THREE.Vector3(3, 1.5, 3.5), look: new THREE.Vector3(3, 1.4, 1.2) }, // 3: close to desk / golden
+  { pos: new THREE.Vector3(4, 1.4, 3), look: new THREE.Vector3(2.2, 1.5, 1.3) }, // 4: lamp closeup
+];
+
+function pathCamera(t){
+  // t 0..1 → segment between keyframes
+  const n = KF.length;
+  const segT = t * (n - 1);
+  const i = Math.min(Math.floor(segT), n - 2);
+  const local = segT - i;
+  // ease
+  const eased = local < 0.5 ? 2 * local * local : 1 - Math.pow(-2 * local + 2, 2) / 2;
+  const posA = KF[i].pos, posB = KF[i + 1].pos;
+  const lookA = KF[i].look, lookB = KF[i + 1].look;
+  camera.position.lerpVectors(posA, posB, eased);
+  const look = new THREE.Vector3().lerpVectors(lookA, lookB, eased);
+  camera.lookAt(look);
+}
+pathCamera(0);
+
+// ═════════════════════════════════════════════════════════
+// SCROLL TRIGGER — bind scroll progress to both TOD + camera
+// ═════════════════════════════════════════════════════════
+const scrollState = { t: 0 };
+ScrollTrigger.create({
+  trigger: document.body,
+  start: 'top top',
+  end: 'bottom bottom',
+  scrub: 0.6,
+  onUpdate: self => {
+    scrollState.t = self.progress;
+    applyTimeOfDay(self.progress);
+    pathCamera(self.progress);
+    document.getElementById('progress').style.width = (self.progress * 100) + '%';
+    const hint = document.getElementById('scrollHint');
+    if (self.progress > 0.03) hint.classList.add('hide');
+    else hint.classList.remove('hide');
+  },
+});
+
+// ═════════════════════════════════════════════════════════
+// CURSOR PARALLAX
+// ═════════════════════════════════════════════════════════
+const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
+addEventListener('mousemove', e => {
+  mouse.tx = (e.clientX / innerWidth - 0.5) * 2;
+  mouse.ty = (e.clientY / innerHeight - 0.5) * 2;
+});
+
+// Animate narrative copy (fade + slide as each act enters)
+gsap.utils.toArray('.act .copy').forEach(el => {
+  gsap.fromTo(el,
+    { opacity: 0, y: 40 },
+    {
+      opacity: 1, y: 0, duration: 0.8, ease: 'power2.out',
+      scrollTrigger: {
+        trigger: el, start: 'top 75%', end: 'bottom 25%',
+        toggleActions: 'play reverse play reverse',
+      },
+    }
+  );
+});
+
+// Animate intro fade out
+gsap.to('.intro', {
+  opacity: 0, y: -40, scrollTrigger: {
+    trigger: '.intro', start: 'top top', end: 'bottom top', scrub: 0.5,
+  },
+});
+
+// ═════════════════════════════════════════════════════════
+// ANIMATION LOOP
+// ═════════════════════════════════════════════════════════
+const clock = new THREE.Clock();
+function loop() {
+  const dt = clock.getDelta();
+  const t = clock.elapsedTime;
+
+  // cursor smoothing
+  mouse.x += (mouse.tx - mouse.x) * 0.06;
+  mouse.y += (mouse.ty - mouse.y) * 0.06;
+  camera.position.x += mouse.x * 0.12;
+  camera.position.y += -mouse.y * 0.06;
+
+  // dust floating motion
+  const pos = dust.geometry.attributes.position.array;
+  for (let i = 0; i < dustCount; i++) {
+    const s = dustSeed[i];
+    pos[i * 3]     = s.px + Math.sin(t * s.speed + s.phase) * 0.15;
+    pos[i * 3 + 1] = s.py + Math.cos(t * s.speed * 0.8 + s.phase) * 0.18;
+    pos[i * 3 + 2] = s.pz + Math.sin(t * s.speed * 0.6 + s.phase * 1.3) * 0.12;
+  }
+  dust.geometry.attributes.position.needsUpdate = true;
+
+  composer.render();
+  requestAnimationFrame(loop);
+}
+loop();
+
+// ═════════════════════════════════════════════════════════
+// RESIZE
+// ═════════════════════════════════════════════════════════
+addEventListener('resize', () => {
+  renderer.setSize(innerWidth, innerHeight);
+  composer.setSize(innerWidth, innerHeight);
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+});
+</script>
+</body>
+</html>
