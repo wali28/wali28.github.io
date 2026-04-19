@@ -2,20 +2,24 @@
 window.__sceneErr = null;
 
 // ─── Safari/WebKit workaround: gl.getShaderPrecisionFormat sometimes returns null ───
-// Patch the prototype BEFORE Three touches any WebGL context.
-(function patchWebGL(){
+// Intercept canvas.getContext so every WebGL context we hand out has a patched method.
+(function wrapGetContext(){
   const fallback = { rangeMin: 127, rangeMax: 127, precision: 23 };
-  const patch = (proto) => {
-    if (!proto) return;
-    const orig = proto.getShaderPrecisionFormat;
-    if (!orig || orig.__patched) return;
-    proto.getShaderPrecisionFormat = function(...args){
-      return orig.call(this, ...args) || fallback;
-    };
-    proto.getShaderPrecisionFormat.__patched = true;
+  const origGetContext = HTMLCanvasElement.prototype.getContext;
+  HTMLCanvasElement.prototype.getContext = function(type, attrs){
+    const ctx = origGetContext.call(this, type, attrs);
+    if (ctx && (type === 'webgl' || type === 'webgl2' || type === 'experimental-webgl')) {
+      const origFn = ctx.getShaderPrecisionFormat && ctx.getShaderPrecisionFormat.bind(ctx);
+      if (origFn) {
+        // Patch the instance directly (works even when prototype is frozen in Safari)
+        Object.defineProperty(ctx, 'getShaderPrecisionFormat', {
+          value: function(...args){ return origFn(...args) || fallback; },
+          writable: true, configurable: true,
+        });
+      }
+    }
+    return ctx;
   };
-  if (typeof WebGLRenderingContext !== 'undefined') patch(WebGLRenderingContext.prototype);
-  if (typeof WebGL2RenderingContext !== 'undefined') patch(WebGL2RenderingContext.prototype);
 })();
 
 try {
