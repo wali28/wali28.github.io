@@ -270,19 +270,10 @@ nav{position:sticky;top:0;z-index:40;padding:16px 40px;display:flex;justify-cont
   </div>
 </nav>
 
-<!-- ───────────── AUTH GATE ───────────── -->
-<div class="gate" id="gate">
-  <div class="gate-card">
-    <span class="gate-tag">Private · operations centre</span>
-    <h1>Agents,<br><span class="sans">signed in.</span></h1>
-    <p>This is the control room — 7 manager agents, ~50 subagent skills under them, a live task queue, and a dashboard for the reports. Enter the admin password to open it up.</p>
-    <form class="gate-form" id="gateForm">
-      <label>Admin password</label>
-      <input id="gatePass" type="password" autocomplete="current-password" required placeholder="enter password…" />
-      <button class="gate-submit" type="submit" id="gateBtn">Unlock dashboard →</button>
-      <div class="gate-err" id="gateErr"></div>
-    </form>
-  </div>
+<!-- ───────────── AUTO-UNLOCKS ───────────── -->
+<div id="bootErr" style="display:none;max-width:520px;margin:80px auto;padding:22px 26px;border:1px solid rgba(239,68,68,0.35);background:rgba(239,68,68,0.08);border-radius:14px;color:#f7b5b5;font-family:system-ui;line-height:1.5;position:relative;z-index:5">
+  <b style="display:block;color:#fff;margin-bottom:6px">Couldn't reach the backend.</b>
+  <span id="bootErrMsg">Check network / try a hard refresh (⌘+Shift+R).</span>
 </div>
 
 <!-- ───────────── DASHBOARD ───────────── -->
@@ -379,12 +370,9 @@ const MANAGERS = {
 // ═══════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════
-const gate = document.getElementById('gate');
 const dash = document.getElementById('dash');
-const gateForm = document.getElementById('gateForm');
-const gatePass = document.getElementById('gatePass');
-const gateBtn = document.getElementById('gateBtn');
-const gateErr = document.getElementById('gateErr');
+const bootErr = document.getElementById('bootErr');
+const bootErrMsg = document.getElementById('bootErrMsg');
 const helpBtn = document.getElementById('helpBtn');
 const newTaskBtn = document.getElementById('newTaskBtn');
 const logoutBtn = document.getElementById('logoutBtn');
@@ -397,7 +385,7 @@ const boardCount = document.getElementById('boardCount');
 const dashSub = document.getElementById('dashSub');
 const toast = document.getElementById('toast');
 
-let adminPass = sessionStorage.getItem('wiAdminPass') || '';
+const adminPass = 'waleed-admin-2026';
 let tasks = [];
 let activeManager = 'all';
 let activeStatus  = 'all';
@@ -488,54 +476,28 @@ async function tryAuth(pass){
   if (error) throw error;
   return data || [];
 }
-async function unlockWith(pass){
-  adminPass = pass;
-  sessionStorage.setItem('wiAdminPass', pass);
-  tasks = await tryAuth(pass);
-  gate.style.display = 'none';
-  dash.classList.add('show');
-  helpBtn.style.display = 'inline-flex';
-  newTaskBtn.style.display = 'inline-flex';
-  logoutBtn.style.display = 'inline-flex';
-  renderDash();
-  // first-time walkthrough
-  if (!localStorage.getItem('wiAgentsTourDone')) {
-    setTimeout(()=>startTour(), 600);
-  }
-}
 
-gateForm.addEventListener('submit', async e => {
-  e.preventDefault();
-  gateBtn.disabled = true;
-  gateBtn.textContent = 'Checking…';
-  gateErr.classList.remove('show');
-  const pass = (gatePass.value || '').trim();
-  if (!pass) { gateBtn.disabled = false; gateBtn.textContent='Unlock dashboard →'; return; }
+async function boot(){
   try {
-    await unlockWith(pass);
-  } catch (err) {
-    const m = (err && err.message) || '';
-    if (m.toLowerCase().includes('unauthorized') || (err && err.code === '28000')) {
-      gateErr.textContent = 'Wrong password. Try again.';
-    } else {
-      gateErr.textContent = 'Error: ' + (m || 'unknown — check console.');
-      console.error(err);
+    tasks = await tryAuth(adminPass);
+    dash.classList.add('show');
+    helpBtn.style.display = 'inline-flex';
+    newTaskBtn.style.display = 'inline-flex';
+    logoutBtn.style.display = 'inline-flex';
+    renderDash();
+    if (!localStorage.getItem('wiAgentsTourDone')) {
+      setTimeout(() => startTour(), 600);
     }
-    gateErr.classList.add('show');
-    gateBtn.disabled = false;
-    gateBtn.textContent = 'Unlock dashboard →';
-    gatePass.select();
+  } catch (err) {
+    console.error('[agents boot]', err);
+    const m = (err && err.message) || 'unknown error';
+    bootErrMsg.textContent = `${m}. Try ⌘+Shift+R.`;
+    bootErr.style.display = 'block';
   }
-});
-
-logoutBtn.addEventListener('click', () => {
-  sessionStorage.removeItem('wiAdminPass');
-  location.reload();
-});
-
-if (adminPass) {
-  unlockWith(adminPass).catch(() => sessionStorage.removeItem('wiAdminPass'));
 }
+boot();
+
+logoutBtn.addEventListener('click', () => { location.href = '../'; });
 
 // ═══════════════════════════════════════════════════════
 // RENDER
