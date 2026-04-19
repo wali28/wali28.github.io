@@ -1,8 +1,18 @@
 // Tokyo Dystopian Campfire · scroll-reactive 3D backdrop
-import * as THREE from 'three';
+// Wrap in try/catch + expose errors so silent failures don't leave a black screen.
+window.__sceneErr = null;
+try {
+const three_mod = await import('three');
+const THREE = three_mod;
 
 const canvas = document.getElementById('sceneCanvas');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+if (!canvas) throw new Error('#sceneCanvas not found');
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+} catch (e) {
+  throw new Error('WebGL init failed: ' + e.message);
+}
 renderer.setPixelRatio(Math.min(2, window.devicePixelRatio));
 renderer.setSize(innerWidth, innerHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -381,3 +391,14 @@ addEventListener('resize', () => {
   camera.aspect = innerWidth / innerHeight;
   camera.updateProjectionMatrix();
 });
+
+console.log('[scene] Tokyo campfire initialised ✓');
+} catch (err) {
+  console.error('[scene] FAILED:', err);
+  window.__sceneErr = err;
+  // Show a diagnostic banner so it's not silent
+  const banner = document.createElement('div');
+  banner.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(239,68,68,0.12);color:#f7b5b5;border:1px solid rgba(239,68,68,0.35);padding:10px 16px;border-radius:10px;font-family:monospace;font-size:11px;z-index:9999;max-width:520px;text-align:center';
+  banner.textContent = 'Scene failed: ' + (err.message || err);
+  document.body.appendChild(banner);
+}

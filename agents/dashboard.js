@@ -354,6 +354,20 @@ function taskCardHTML(t){
   const color = mgr?.color || '#e8a962';
   const attachments = Array.isArray(t.attachments) ? t.attachments : [];
   const artifacts = Array.isArray(t.artifacts) ? t.artifacts : [];
+  const artPreview = artifacts.length ? `<div class="task-art-strip">
+    <span class="task-art-badge">🎨 ${artifacts.length} artifact${artifacts.length===1?'':'s'}</span>
+    ${artifacts.slice(0, 5).map(a => {
+      const type = (a.type || guessType(a.url, a.name)).toLowerCase();
+      const click = (type === 'image' || type === 'svg')
+        ? `event.stopPropagation(); window.openLightbox('${esc(a.url)}')`
+        : `event.stopPropagation(); window.open('${esc(a.url)}','_blank')`;
+      const inner = (type === 'image' || type === 'svg')
+        ? `<img src="${esc(a.url)}" alt=""/>`
+        : `<div class="ico">${type==='pdf'?'📄':type==='md'?'📄':type==='link'?'🌐':type==='html'?'🌐':'📎'}</div>`;
+      return `<div class="task-art-thumb" title="${esc(a.name||a.url)}" onclick="${click}">${inner}</div>`;
+    }).join('')}
+    ${artifacts.length > 5 ? `<span class="task-art-more">+${artifacts.length - 5} more</span>` : ''}
+  </div>` : '';
   return `<div class="task" data-id="${t.id}" data-status="${t.status}">
     <div class="task-row" onclick="window.toggleTask('${t.id}')">
       <div>
@@ -362,6 +376,7 @@ function taskCardHTML(t){
           <span class="task-mgr-chip" style="background:${color}">${(mgr?.name||t.manager).toUpperCase()}</span>
         </div>
         <div class="task-sum">${esc(t.summary || t.brief.slice(0, 140) + (t.brief.length > 140 ? '…' : ''))}</div>
+        ${artPreview}
       </div>
       <div class="task-right">
         <span class="task-status s-${t.status}">${t.status}${t.status === 'running' ? ' · ' + (t.progress||0) + '%' : ''}</span>
