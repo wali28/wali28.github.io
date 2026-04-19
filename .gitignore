@@ -6,3 +6,4 @@ node_modules/
 .env
 .env.local
 Services/
+renders/node_modules/
